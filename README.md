@@ -1,4 +1,4 @@
-# sketch2code
+# sketch2html
 
 [![NPM version](https://badge.fury.io/js/sketch2html.png)](https://npmjs.org/package/sketch2html)
 [![Build Status](https://travis-ci.org/sketch2html/sketch2html.svg?branch=master)](https://travis-ci.org/sketch2html/sketch2html)

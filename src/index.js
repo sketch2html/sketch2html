@@ -22,7 +22,7 @@ export default function() {
   let ok = sel[2];
   let value = options[sel[1]];
   if(ok) {
-    let path = `~/${value}/sketch2code`;
+    let path = `~/${value}/sketch2html`;
     list.forEach((scLayer) => {
       scLayer.output(path);
     });

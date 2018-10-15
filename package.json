@@ -1,13 +1,13 @@
 {
-  "name": "sketch2code",
+  "name": "sketch2html",
   "version": "0.0.1",
   "engines": {
     "sketch": ">=3.0"
   },
   "skpm": {
-    "name": "sketch2code",
+    "name": "sketch2html",
     "manifest": "src/manifest.json",
-    "main": "sketch2code.sketchplugin",
+    "main": "sketch2html.sketchplugin",
     "assets": [
       "assets/**/*"
     ]

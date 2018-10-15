@@ -29,7 +29,7 @@ export function formats() {
   }
   let message = [];
   list.forEach(item => {
-    let directory = `${NSHomeDirectory()}/Documents/sketch2code/format`;
+    let directory = `${NSHomeDirectory()}/Documents/sketch2html/format`;
     let fileManager = NSFileManager.defaultManager();
     if(!fileManager.fileExistsAtPath(NSString.stringWithString(directory))) {
       fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(NSString.stringWithString(directory), true, null, null);
@@ -51,7 +51,7 @@ export function flattens() {
   }
   let check = [];
   selection.forEach(item => {
-    let dir = `${NSHomeDirectory()}/Documents/sketch2code/format/${item.id}.json`;
+    let dir = `${NSHomeDirectory()}/Documents/sketch2html/format/${item.id}.json`;
     let fileManager = NSFileManager.defaultManager();
     if(!fileManager.fileExistsAtPath(NSString.stringWithString(dir))) {
       check.push(dir);
@@ -63,7 +63,7 @@ export function flattens() {
   }
   let list = [];
   selection.forEach(item => {
-    let dir = `${NSHomeDirectory()}/Documents/sketch2code/format/${item.id}.json`;
+    let dir = `${NSHomeDirectory()}/Documents/sketch2html/format/${item.id}.json`;
     let fileHandler = NSFileHandle.fileHandleForReadingAtPath(dir);
     let data = fileHandler.readDataToEndOfFile();
     let s = NSString.alloc().initWithData_encoding(data, NSUTF8StringEncoding);
@@ -75,7 +75,7 @@ export function flattens() {
   });
   let message = [];
   arr.forEach((item, i) => {
-    let directory = `${NSHomeDirectory()}/Documents/sketch2code/flatten`;
+    let directory = `${NSHomeDirectory()}/Documents/sketch2html/flatten`;
     let fileManager = NSFileManager.defaultManager();
     if(!fileManager.fileExistsAtPath(NSString.stringWithString(directory))) {
       fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(NSString.stringWithString(directory), true, null, null);
@@ -119,7 +119,7 @@ export function overlays() {
   }
   let check = [];
   selection.forEach(item => {
-    let dir = `${NSHomeDirectory()}/Documents/sketch2code/flatten/${item.id}.json`;
+    let dir = `${NSHomeDirectory()}/Documents/sketch2html/flatten/${item.id}.json`;
     let fileManager = NSFileManager.defaultManager();
     if(!fileManager.fileExistsAtPath(NSString.stringWithString(dir))) {
       check.push(dir);
@@ -133,7 +133,7 @@ export function overlays() {
   let ids = [];
   selection.forEach(item => {
     ids.push(item.id);
-    let dir = `${NSHomeDirectory()}/Documents/sketch2code/flatten/${item.id}.json`;
+    let dir = `${NSHomeDirectory()}/Documents/sketch2html/flatten/${item.id}.json`;
     let fileHandler = NSFileHandle.fileHandleForReadingAtPath(dir);
     let data = fileHandler.readDataToEndOfFile();
     let s = NSString.alloc().initWithData_encoding(data, NSUTF8StringEncoding);
@@ -145,7 +145,7 @@ export function overlays() {
   });
   let message = [];
   arr.forEach((item, i) => {
-    let directory = `${NSHomeDirectory()}/Documents/sketch2code/overlay`;
+    let directory = `${NSHomeDirectory()}/Documents/sketch2html/overlay`;
     let fileManager = NSFileManager.defaultManager();
     if(!fileManager.fileExistsAtPath(NSString.stringWithString(directory))) {
       fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(NSString.stringWithString(directory), true, null, null);
@@ -189,7 +189,7 @@ export function edges() {
   }
   let check = [];
   selection.forEach(item => {
-    let dir = `${NSHomeDirectory()}/Documents/sketch2code/overlay/${item.id}.json`;
+    let dir = `${NSHomeDirectory()}/Documents/sketch2html/overlay/${item.id}.json`;
     let fileManager = NSFileManager.defaultManager();
     if(!fileManager.fileExistsAtPath(NSString.stringWithString(dir))) {
       check.push(dir);
@@ -203,7 +203,7 @@ export function edges() {
   let ids = [];
   selection.forEach(item => {
     ids.push(item.id);
-    let dir = `${NSHomeDirectory()}/Documents/sketch2code/overlay/${item.id}.json`;
+    let dir = `${NSHomeDirectory()}/Documents/sketch2html/overlay/${item.id}.json`;
     let fileHandler = NSFileHandle.fileHandleForReadingAtPath(dir);
     let data = fileHandler.readDataToEndOfFile();
     let s = NSString.alloc().initWithData_encoding(data, NSUTF8StringEncoding);
@@ -215,7 +215,7 @@ export function edges() {
   });
   let message = [];
   arr.forEach((item, i) => {
-    let directory = `${NSHomeDirectory()}/Documents/sketch2code/edge`;
+    let directory = `${NSHomeDirectory()}/Documents/sketch2html/edge`;
     let fileManager = NSFileManager.defaultManager();
     if(!fileManager.fileExistsAtPath(NSString.stringWithString(directory))) {
       fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(NSString.stringWithString(directory), true, null, null);
@@ -264,7 +264,7 @@ export function combines() {
   }
   let check = [];
   selection.forEach(item => {
-    let dir = `${NSHomeDirectory()}/Documents/sketch2code/edge/${item.id}.json`;
+    let dir = `${NSHomeDirectory()}/Documents/sketch2html/edge/${item.id}.json`;
     let fileManager = NSFileManager.defaultManager();
     if(!fileManager.fileExistsAtPath(NSString.stringWithString(dir))) {
       check.push(dir);
@@ -278,7 +278,7 @@ export function combines() {
   let ids = [];
   selection.forEach(item => {
     ids.push(item.id);
-    let dir = `${NSHomeDirectory()}/Documents/sketch2code/edge/${item.id}.json`;
+    let dir = `${NSHomeDirectory()}/Documents/sketch2html/edge/${item.id}.json`;
     let fileHandler = NSFileHandle.fileHandleForReadingAtPath(dir);
     let data = fileHandler.readDataToEndOfFile();
     let s = NSString.alloc().initWithData_encoding(data, NSUTF8StringEncoding);
@@ -290,7 +290,7 @@ export function combines() {
   });
   let message = [];
   arr.forEach((item, i) => {
-    let directory = `${NSHomeDirectory()}/Documents/sketch2code/combine`;
+    let directory = `${NSHomeDirectory()}/Documents/sketch2html/combine`;
     let fileManager = NSFileManager.defaultManager();
     if(!fileManager.fileExistsAtPath(NSString.stringWithString(directory))) {
       fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(NSString.stringWithString(directory), true, null, null);
