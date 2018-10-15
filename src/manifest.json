@@ -1,0 +1,65 @@
+{
+  "compatibleVersion": 3,
+  "bundleVersion": 1,
+  "icon": "icon.png",
+  "commands": [
+    {
+      "name": "export",
+      "identifier": "export",
+      "script": "./index.js"
+    },
+    {
+      "name": "overall",
+      "identifier": "overall",
+      "script": "./debugger.js",
+      "handler": "overall"
+    },
+    {
+      "name": "format",
+      "identifier": "format",
+      "script": "./debugger.js",
+      "handler": "formats"
+    },
+    {
+      "name": "flatten",
+      "identifier": "flatten",
+      "script": "./debugger.js",
+      "handler": "flattens"
+    },
+    {
+      "name": "overlay",
+      "identifier": "overlay",
+      "script": "./debugger.js",
+      "handler": "overlays"
+    },
+    {
+      "name": "edge",
+      "identifier": "edge",
+      "script": "./debugger.js",
+      "handler": "edges"
+    },
+    {
+      "name": "combine",
+      "identifier": "combine",
+      "script": "./debugger.js",
+      "handler": "combines"
+    }
+  ],
+  "menu": {
+    "title": "sketch2code",
+    "items": [
+      "export",
+      {
+        "title": "debugger",
+        "items": [
+          "overall",
+          "format",
+          "flatten",
+          "overlay",
+          "edge",
+          "combine"
+        ]
+      }
+    ]
+  }
+}
