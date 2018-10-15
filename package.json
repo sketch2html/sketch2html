@@ -16,6 +16,7 @@
     "build": "skpm-build",
     "watch": "skpm-build --watch",
     "start": "skpm-build --watch --run",
+    "postinstall": "npm run build && skpm-link",
     "dev": "skpm-build --watch & skpm log -f",
     "log": "skpm log",
     "logs": "skpm log -f"

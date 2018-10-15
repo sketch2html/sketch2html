@@ -13,5 +13,5 @@
 
 ## 开发说明
 * `npm i`安装依赖
-* `src`为sketch插件源码目录
-  * 插件开发`npm run dev`自动侦听构建并同时输出`console`日志
+* `npm run postinstall`安装关联插件源码
+* `npm run dev`自动侦听构建并同时输出`console`日志
