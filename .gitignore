@@ -9,7 +9,3 @@ run/
 .DS_Store
 *.swp
 *.sketchplugin/
-app/public/
-app/view/*.js
-config.local.js
-config.prod.js

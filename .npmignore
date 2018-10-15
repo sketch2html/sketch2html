@@ -13,7 +13,4 @@ logs/
 *.log
 *.swp
 *.sketchplugin/
-assets/
 src/
-ml/
-web/
