@@ -37,7 +37,7 @@ export default function(json) {
   });
   // 重合的图层，排除掉本身是背景的图，下方为图像的肯定是背景图
   json.forEach((item, i) => {
-    if(item.overlay.length && item.isImage) {
+    if(item.overlay.length && (item.isImage || item.isMeta)) {
       let num = 0;
       item.overlay.forEach(id => {
         let z = zHash.get(id);
