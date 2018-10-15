@@ -537,7 +537,7 @@ function getFinal(unionHorizontal, unionVertical, center, square) {
       if(isEmpty(a[0].y1, a[0].x4, a[a.length - 1].y4, a[0].x1, center)
         || isEmpty(b[0].y1, b[0].x4, b[b.length - 1].y4, b[0].x1, center)) {
         a.forEach((item, i) => {
-          item.x4 = b[i].x4;
+          item.x4 = b[0].x4;
           item.y4 = a[a.length - 1].y4;
         });
         square = square.filter(item => !item.ignore);
@@ -566,7 +566,7 @@ function getFinal(unionHorizontal, unionVertical, center, square) {
       if(isEmpty(a[0].y1, a[a.length - 1].x4, a[0].y4, a[0].x1, center)
         || isEmpty(b[0].y1, b[b.length - 1].x4, b[0].y4, b[0].x1, center)) {
         a.forEach((item, i) => {
-          item.y4 = b[i].y4;
+          item.y4 = b[0].y4;
           item.x4 = a[a.length - 1].x4;
         });
         square = square.filter(item => !item.ignore);
