@@ -40,7 +40,6 @@ export function formats() {
     let s = JSON.stringify(json, null, 2);
     NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
   });
-  UI.alert('Message', `JSON format have been outputing to:\n${message.join('\n')}`);
   return true;
 }
 
@@ -108,7 +107,6 @@ export function flattens() {
     });
     NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
   });
-  UI.alert('Message', `JSON flatten have been outputing to:\n${message.join('\n')}`);
   return true;
 }
 
@@ -178,7 +176,6 @@ export function overlays() {
     });
     NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
   });
-  UI.alert('Message', `JSON overlay have been outputing to:\n${message.join('\n')}`);
   return true;
 }
 
@@ -237,6 +234,7 @@ export function edges() {
           y: v.y,
         };
       }),
+      finalSquare: item.finalSquare,
     }, null, 2);
     NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
     dir = `${directory}/${id}.html`;
@@ -253,7 +251,6 @@ export function edges() {
     });
     NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
   });
-  UI.alert('Message', `JSON edge have been outputing to:\n${message.join('\n')}`);
   return true;
 }
 
@@ -300,20 +297,6 @@ export function combines() {
     message.push(dir);
     let s = JSON.stringify(item, null, 2);
     NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
-    dir = `${directory}/${id}.html`;
-    let document = Document.getSelectedDocument();
-    let layer = document.getLayerWithID(id);
-    let top = util.getTop(layer);
-    let pageWidth = top.frame.width;
-    let pageHeight = top.frame.height;
-    s = template.combine({
-      title: 'combine',
-      pageWidth,
-      pageHeight,
-      item,
-    });
-    NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
   });
-  UI.alert('Message', `JSON edge have been outputing to:\n${message.join('\n')}`);
   return true;
 }

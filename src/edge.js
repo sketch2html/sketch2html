@@ -513,26 +513,27 @@ function getUnion(mergeHorizontal, mergeVertical, center, point) {
 function getFinal(unionHorizontal, unionVertical, center, square) {
   let finalHorizontal = lodash.cloneDeep(unionHorizontal);
   let finalVertical = lodash.cloneDeep(unionVertical);
+  let finalSquare = lodash.cloneDeep(square);
   // 再次尝试合并，此次只考虑联合矩形
   do {
     let fin = true;
     for(let i = 1; i < finalVertical.length - 1; i++) {
       let l = finalVertical[i];
-      let pair = getPairGroupSquare(square, l, false);
+      let pair = getPairGroupSquare(finalSquare, l, false);
       if(!pair) {
         continue;
       }
       let a = pair[0].map((item, i) => {
         if(i) {
-          square[item].ignore = true;
+          finalSquare[item].ignore = true;
         }
-        return square[item];
+        return finalSquare[item];
       });
       let b = pair[1].map((item, i) => {
         if(i) {
-          square[item].ignore = true;
+          finalSquare[item].ignore = true;
         }
-        return square[item];
+        return finalSquare[item];
       });
       if(isEmpty(a[0].y1, a[0].x4, a[a.length - 1].y4, a[0].x1, center)
         || isEmpty(b[0].y1, b[0].x4, b[b.length - 1].y4, b[0].x1, center)) {
@@ -540,28 +541,28 @@ function getFinal(unionHorizontal, unionVertical, center, square) {
           item.x4 = b[0].x4;
           item.y4 = a[a.length - 1].y4;
         });
-        square = square.filter(item => !item.ignore);
+        finalSquare = finalSquare.filter(item => !item.ignore);
         finalVertical.splice(i--, 1);
         fin = false;
       }
     }
     for(let i = 1; i < finalHorizontal.length - 1; i++) {
       let l = finalHorizontal[i];
-      let pair = getPairGroupSquare(square, l, true);
+      let pair = getPairGroupSquare(finalSquare, l, true);
       if(!pair) {
         continue;
       }
       let a = pair[0].map((item, i) => {
         if(i) {
-          square[item].ignore = true;
+          finalSquare[item].ignore = true;
         }
-        return square[item];
+        return finalSquare[item];
       });
       let b = pair[1].map((item, i) => {
         if(i) {
-          square[item].ignore = true;
+          finalSquare[item].ignore = true;
         }
-        return square[item];
+        return finalSquare[item];
       });
       if(isEmpty(a[0].y1, a[a.length - 1].x4, a[0].y4, a[0].x1, center)
         || isEmpty(b[0].y1, b[b.length - 1].x4, b[0].y4, b[0].x1, center)) {
@@ -569,7 +570,7 @@ function getFinal(unionHorizontal, unionVertical, center, square) {
           item.y4 = b[0].y4;
           item.x4 = a[a.length - 1].x4;
         });
-        square = square.filter(item => !item.ignore);
+        finalSquare = finalSquare.filter(item => !item.ignore);
         finalHorizontal.splice(i--, 1);
         fin = false;
       }
@@ -582,9 +583,11 @@ function getFinal(unionHorizontal, unionVertical, center, square) {
   return {
     finalHorizontal,
     finalVertical,
+    finalSquare,
   };
 }
 
+// 相交或者一边顶到另一条边的中间才算，两条顶点相交不算
 function isCross(h, v) {
   if(h.y < v.y[0] || h.y > v.y[1]) {
     return false;
@@ -775,7 +778,7 @@ export default function(json) {
     });
   });
   let { unionHorizontal, unionVertical, unionPoint, square } = getUnion(mergeHorizontal, mergeVertical, center, point);
-  let { finalHorizontal, finalVertical } = getFinal(unionHorizontal, unionVertical, center, square);
+  let { finalHorizontal, finalVertical, finalSquare } = getFinal(unionHorizontal, unionVertical, center, square);
   return {
     originHorizontal,
     originVertical,
@@ -790,5 +793,6 @@ export default function(json) {
     unionPoint,
     finalHorizontal,
     finalVertical,
+    finalSquare,
   };
 }
