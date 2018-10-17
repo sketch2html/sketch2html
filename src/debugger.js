@@ -15,14 +15,15 @@ import template from './template';
 export function overall() {
   let list = [formats, flattens, overlays, edges, combines];
   for(let i = 0; i < list.length; i++) {
-    let res = list[i]();
+    let res = list[i](true);
     if(!res) {
       return;
     }
   }
+  UI.alert('Message', `JSON data have been outputing to:\n${NSHomeDirectory()}/Documents/sketch2html`);
 }
 
-export function formats() {
+export function formats(noAlert) {
   let list = format();
   if(!list) {
     return false;
@@ -40,10 +41,13 @@ export function formats() {
     let s = JSON.stringify(json, null, 2);
     NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
   });
+  if(noAlert !== true) {
+    UI.alert('Message', `JSON format have been outputing to:\n${message.join('\n')}`);
+  }
   return true;
 }
 
-export function flattens() {
+export function flattens(noAlert) {
   let selection = preCheck();
   if(!selection) {
     return false;
@@ -107,10 +111,13 @@ export function flattens() {
     });
     NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
   });
+  if(noAlert !== true) {
+    UI.alert('Message', `JSON flatten have been outputing to:\n${message.join('\n')}`);
+  }
   return true;
 }
 
-export function overlays() {
+export function overlays(noAlert) {
   let selection = preCheck();
   if(!selection) {
     return false;
@@ -176,10 +183,13 @@ export function overlays() {
     });
     NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
   });
+  if(noAlert !== true) {
+    UI.alert('Message', `JSON overlay have been outputing to:\n${message.join('\n')}`);
+  }
   return true;
 }
 
-export function edges() {
+export function edges(noAlert) {
   let selection = preCheck();
   if(!selection) {
     return false;
@@ -251,10 +261,13 @@ export function edges() {
     });
     NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
   });
+  if(noAlert !== true) {
+    UI.alert('Message', `JSON edge have been outputing to:\n${message.join('\n')}`);
+  }
   return true;
 }
 
-export function combines() {
+export function combines(noAlert) {
   let selection = preCheck();
   if(!selection) {
     return false;
@@ -298,5 +311,8 @@ export function combines() {
     let s = JSON.stringify(item, null, 2);
     NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
   });
+  if(noAlert !== true) {
+    UI.alert('Message', `JSON combine have been outputing to:\n${message.join('\n')}`);
+  }
   return true;
 }
