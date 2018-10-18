@@ -774,7 +774,14 @@ export default function(json) {
     center.push({
       x: item.xs + (item.width >> 1),
       y: item.ys + (item.height >> 1),
+      xs: item.xs,
+      ys: item.ys,
+      width: item.width,
+      height: item.height,
       id: item.id,
+      isImage: item.isImage,
+      isMeta: item.isMeta,
+      isBackground: item.isBackground,
     });
   });
   let { unionHorizontal, unionVertical, unionPoint, square } = getUnion(mergeHorizontal, mergeVertical, center, point);

@@ -197,26 +197,53 @@ function split(h, startH, endH, v, startV, endV, center) {
   return res;
 }
 
-function spread(res, list, index) {
+function scan(res, total) {
   if(res.parataxis) {
-    res.list.forEach((item, i) => {
-      let clone = lodash.cloneDeep(index);
-      clone.push(i);
-      spread(item, list, clone);
+    return res.list.map(item => {
+      return scan(item, total);
     });
   }
-  else if(Array.isArray(res.list)) {
-    let parataxis;
+  else {
     for(let i = 0; i < res.list.length; i++) {
-      if(res.list[i].parataxis) {
-        parataxis = true;
-        spread(res.list[i], list, index);
-        break;
+      let item = res.list[i];
+      if(item !== null && typeof item !== 'string' && item.parataxis) {
+        return scan(item, total);
       }
     }
-    if(!parataxis) {
-      list.push(index);
-    }
+    return total.n++;
+  }
+}
+
+function indexing(index, hyperIndex, temp) {
+  if(Array.isArray(index)) {
+    index.forEach((item, i) => {
+      temp.push(i);
+      indexing(item, hyperIndex, temp);
+      temp.pop();
+    });
+  }
+  else {
+    hyperIndex.push(lodash.cloneDeep(temp));
+  }
+}
+
+function spread(res, arr) {
+  if(res === null || typeof res === 'string') {
+    return res;
+  }
+  else if(res.parataxis) {
+    let i = arr.shift();
+    let temp = spread(res.list[i], arr);
+    temp.parataxis = true;
+    return temp;
+  }
+  else {
+    return {
+      direction: res.direction,
+      list: res.list.map(item => {
+        return spread(item, arr);
+      }),
+    };
   }
 }
 
@@ -225,8 +252,14 @@ export default function(json) {
   let v = json.finalVertical;
   let center = json.center;
   let res = split(h, 0, h.length - 1, v, 0, v.length - 1, center);
-  let list = [];
-  spread(res, list, []);
-  console.log(list);
-  return res;
+  let index = scan(res, { n: 0 });
+  let hyperIndex = [];
+  indexing(index, hyperIndex, []);
+  let list = hyperIndex.map(item => {
+    return spread(res, lodash.clone(item));
+  });
+  return {
+    center,
+    list,
+  };
 }
