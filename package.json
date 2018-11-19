@@ -25,10 +25,10 @@
     "@tensorflow/tfjs": "^0.13.5",
     "jszip": "^3.1.5",
     "lodash": "^4.17.11",
-    "skpm": "^1.1.8"
+    "skpm": "^1.1.9"
   },
   "devDependencies": {
-    "@skpm/builder": "^0.5.10",
+    "@skpm/builder": "^0.5.11",
     "blanket": "^1.2.3",
     "coveralls": "^3.0.2",
     "expect.js": "^0.3.1",
