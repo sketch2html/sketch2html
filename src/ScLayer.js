@@ -232,7 +232,13 @@ class ScLayer {
     }
     let xs = this.xs;
     let ys = this.ys;
-    return this._json = {
+    let fontSize = 0;
+    let lineHeight = 0;
+    if(this.type === type.TEXT) {
+      fontSize = this.layer.sketchObject.fontSize();
+      lineHeight = this.layer.sketchObject.lineHeight();
+    }
+    this._json = {
       id: this.id,
       name: this.name,
       type: this.type,
@@ -253,7 +259,10 @@ class ScLayer {
       width: this.width,
       height: this.height,
       children: childrenJson,
+      fontSize,
+      lineHeight,
     };
+    return this._json;
   }
   toString() {
     return JSON.stringify(this.toJSON());
