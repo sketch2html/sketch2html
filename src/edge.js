@@ -523,23 +523,20 @@ function getFinal(unionHorizontal, unionVertical, center, square) {
       if(!pair) {
         continue;
       }
-      let a = pair[0].map((item, i) => {
-        if(i) {
-          finalSquare[item].ignore = true;
-        }
+      let a = pair[0].map(item => {
         return finalSquare[item];
       });
-      let b = pair[1].map((item, i) => {
-        if(i) {
-          finalSquare[item].ignore = true;
-        }
+      let b = pair[1].map(item => {
         return finalSquare[item];
       });
       if(isEmpty(a[0].y1, a[0].x4, a[a.length - 1].y4, a[0].x1, center)
         || isEmpty(b[0].y1, b[0].x4, b[b.length - 1].y4, b[0].x1, center)) {
-        a.forEach((item, i) => {
+        a.forEach(item => {
           item.x4 = b[0].x4;
           item.y4 = a[a.length - 1].y4;
+        });
+        b.forEach(item => {
+          item.ignore = true;
         });
         finalSquare = finalSquare.filter(item => !item.ignore);
         finalVertical.splice(i--, 1);
@@ -552,23 +549,20 @@ function getFinal(unionHorizontal, unionVertical, center, square) {
       if(!pair) {
         continue;
       }
-      let a = pair[0].map((item, i) => {
-        if(i) {
-          finalSquare[item].ignore = true;
-        }
+      let a = pair[0].map(item => {
         return finalSquare[item];
       });
-      let b = pair[1].map((item, i) => {
-        if(i) {
-          finalSquare[item].ignore = true;
-        }
+      let b = pair[1].map(item => {
         return finalSquare[item];
       });
       if(isEmpty(a[0].y1, a[a.length - 1].x4, a[0].y4, a[0].x1, center)
         || isEmpty(b[0].y1, b[b.length - 1].x4, b[0].y4, b[0].x1, center)) {
-        a.forEach((item, i) => {
+        a.forEach(item => {
           item.y4 = b[0].y4;
           item.x4 = a[a.length - 1].x4;
+        });
+        b.forEach(item => {
+          item.ignore = true;
         });
         finalSquare = finalSquare.filter(item => !item.ignore);
         finalHorizontal.splice(i--, 1);
@@ -782,6 +776,9 @@ export default function(json) {
       isImage: item.isImage,
       isMeta: item.isMeta,
       isBackground: item.isBackground,
+      type: item.isImage ? 0 : 1,
+      fontSize: item.fontSize,
+      lineHeight: item.lineHeight,
     });
   });
   let { unionHorizontal, unionVertical, unionPoint, square } = getUnion(mergeHorizontal, mergeVertical, center, point);
@@ -793,10 +790,10 @@ export default function(json) {
     extendVertical,
     mergeHorizontal,
     mergeVertical,
+    point,
     center,
     unionHorizontal,
     unionVertical,
-    point,
     unionPoint,
     finalHorizontal,
     finalVertical,
