@@ -529,11 +529,17 @@ function getFinal(unionHorizontal, unionVertical, center, square) {
       let b = pair[1].map(item => {
         return finalSquare[item];
       });
-      if(isEmpty(a[0].y1, a[0].x4, a[a.length - 1].y4, a[0].x1, center)
-        || isEmpty(b[0].y1, b[0].x4, b[b.length - 1].y4, b[0].x1, center)) {
-        a.forEach(item => {
-          item.x4 = b[0].x4;
-          item.y4 = a[a.length - 1].y4;
+      let ea = isEmpty(a[0].y1, a[0].x4, a[a.length - 1].y4, a[0].x1, center);
+      let eb = isEmpty(b[0].y1, b[0].x4, b[b.length - 1].y4, b[0].x1, center);
+      if(ea || eb) {
+        a.forEach((item, i) => {
+          if(i) {
+            item.ignore = true;
+          }
+          else {
+            item.x4 = b[0].x4;
+            item.y4 = a[a.length - 1].y4;
+          }
         });
         b.forEach(item => {
           item.ignore = true;
@@ -555,11 +561,17 @@ function getFinal(unionHorizontal, unionVertical, center, square) {
       let b = pair[1].map(item => {
         return finalSquare[item];
       });
-      if(isEmpty(a[0].y1, a[a.length - 1].x4, a[0].y4, a[0].x1, center)
-        || isEmpty(b[0].y1, b[b.length - 1].x4, b[0].y4, b[0].x1, center)) {
-        a.forEach(item => {
-          item.y4 = b[0].y4;
-          item.x4 = a[a.length - 1].x4;
+      let ea = isEmpty(a[0].y1, a[a.length - 1].x4, a[0].y4, a[0].x1, center);
+      let eb = isEmpty(b[0].y1, b[b.length - 1].x4, b[0].y4, b[0].x1, center);
+      if(ea || eb) {
+        a.forEach((item, i) => {
+          if(i) {
+            item.ignore = true;
+          }
+          else {
+            item.y4 = b[0].y4;
+            item.x4 = a[a.length - 1].x4;
+          }
         });
         b.forEach(item => {
           item.ignore = true;
