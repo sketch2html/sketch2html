@@ -776,7 +776,6 @@ export default function(json) {
       isImage: item.isImage,
       isMeta: item.isMeta,
       isBackground: item.isBackground,
-      type: item.isImage ? 0 : 1,
       fontSize: item.fontSize,
       lineHeight: item.lineHeight,
     });

@@ -234,9 +234,15 @@ class ScLayer {
     let ys = this.ys;
     let fontSize = 0;
     let lineHeight = 0;
+    // 拿字体大小等信息
+    // https://sketchplugins.com/d/200-font-method-of-mstextlayer
+    // https://github.com/abynim/Sketch-Headers/blob/master/Headers/MSTextLayer.h
     if(this.type === type.TEXT) {
       fontSize = this.layer.sketchObject.fontSize();
       lineHeight = this.layer.sketchObject.lineHeight();
+      if(lineHeight === 0) {
+        lineHeight = this.height;
+      }
     }
     this._json = {
       id: this.id,
