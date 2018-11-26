@@ -234,15 +234,21 @@ class ScLayer {
     let ys = this.ys;
     let fontSize = 0;
     let lineHeight = 0;
+    let color;
+    let fontFamily;
     // 拿字体大小等信息
     // https://sketchplugins.com/d/200-font-method-of-mstextlayer
     // https://github.com/abynim/Sketch-Headers/blob/master/Headers/MSTextLayer.h
     if(this.type === type.TEXT) {
-      fontSize = this.layer.sketchObject.fontSize();
-      lineHeight = this.layer.sketchObject.lineHeight();
+      let sketchObject = this.layer.sketchObject;
+      fontSize = sketchObject.fontSize();
+      lineHeight = sketchObject.lineHeight();
       if(lineHeight === 0) {
         lineHeight = this.height;
       }
+      color = sketchObject.textColor();
+      color = `rgba(${color.red()*100}%,${color.green()*100}%,${color.blue()*100}%,${color.alpha()*100}%)`;
+      fontFamily = sketchObject.fontPostscriptName() + '';
     }
     this._json = {
       id: this.id,
@@ -267,6 +273,9 @@ class ScLayer {
       children: childrenJson,
       fontSize,
       lineHeight,
+      text: this.layer.text,
+      color,
+      fontFamily,
     };
     return this._json;
   }
