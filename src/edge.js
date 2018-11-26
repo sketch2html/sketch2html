@@ -530,7 +530,7 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
         return finalSquare[item];
       });
       let ea = isEmpty(a[0].y1, a[0].x4, a[a.length - 1].y4, a[0].x1, json);
-      let eb = isEmpty(b[0].y1, b[0].x4, b[b.length - 1].y4, b[0].x1, json); console.log(1, ea, eb);
+      let eb = isEmpty(b[0].y1, b[0].x4, b[b.length - 1].y4, b[0].x1, json);
       if(ea || eb) {
         a.forEach((item, i) => {
           if(i) {
@@ -562,7 +562,7 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
         return finalSquare[item];
       });
       let ea = isEmpty(a[0].y1, a[a.length - 1].x4, a[0].y4, a[0].x1, json);
-      let eb = isEmpty(b[0].y1, b[b.length - 1].x4, b[0].y4, b[0].x1, json); console.log(2, ea, eb);
+      let eb = isEmpty(b[0].y1, b[b.length - 1].x4, b[0].y4, b[0].x1, json);
       if(ea || eb) {
         a.forEach((item, i) => {
           if(i) {
@@ -670,7 +670,7 @@ function isInLine(h, v, square) {
 function isEmpty(top, right, bottom, left, json) {
   for(let i = 0; i < json.length; i++) {
     let item = json[i];
-    if(item.xs >= left && item.xs <= right && item.ys >= top && item.ys <= bottom) {
+    if(item.xc >= left && item.xc <= right && item.yc >= top && item.yc <= bottom) {
       return false;
     }
   }
@@ -770,16 +770,6 @@ function getPairGroupSquare(square, l, hOrV) {
   return null;
 }
 
-function getInSquare(top, right, bottom, left, json) {
-  for(let i = 0; i < json.length; i++) {
-    let item = json[i];
-    if(item.xs >= left && item.xs <= right && item.ys >= top && item.ys <= bottom) {
-      return item;
-    }
-  }
-  return null;
-}
-
 export default function(json) {
   json = json.filter(item => !item.isBackground);
   let { top, right, bottom, left, originHorizontal, originVertical } = getOrigin(json);
@@ -787,10 +777,6 @@ export default function(json) {
   let { mergeHorizontal, mergeVertical, point } = getMerge(extendHorizontal, extendVertical);
   let { unionHorizontal, unionVertical, unionPoint, square } = getUnion(mergeHorizontal, mergeVertical, json, point);
   let { finalHorizontal, finalVertical, finalSquare } = getFinal(unionHorizontal, unionVertical, json, square);
-  let list = [];
-  finalSquare.forEach(item => {
-    list.push(getInSquare(item.y1, item.x4, item.y4, item.x1, json));
-  });
   return {
     originHorizontal,
     originVertical,
@@ -802,9 +788,10 @@ export default function(json) {
     unionHorizontal,
     unionVertical,
     unionPoint,
+    square,
     finalHorizontal,
     finalVertical,
     finalSquare,
-    list,
+    list: json,
   };
 }
