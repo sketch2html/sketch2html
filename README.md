@@ -7,9 +7,10 @@
 [![logo](https://raw.githubusercontent.com/sketch2html/sketch2html/master/assets/icon.png)](https://github.com/sketch2html/sketch2html)
 
 ## reference
-* Sketch: https://developer.sketchapp.com/reference/api/
-* Sketch plugin: https://developer.sketchapp.com/guides/
-* TensorFlow.js: https://js.tensorflow.org/api/0.12.5/
+* Sketch api: https://developer.sketchapp.com/reference/api
+* Sketch plugin: https://developer.sketchapp.com/guides
+* Sketch headers: https://github.com/abynim/Sketch-Headers
+* TensorFlow.js: https://js.tensorflow.org/api/0.13.3
 
 ## 开发说明
 * `npm i`安装依赖

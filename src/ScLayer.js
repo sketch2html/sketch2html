@@ -268,6 +268,8 @@ class ScLayer {
       xs: xs,
       ys: ys,
       zs: this.zs,
+      xc: xs + this.width * 0.5,
+      yc: ys + this.height * 0.5,
       width: this.width,
       height: this.height,
       children: childrenJson,

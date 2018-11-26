@@ -8,12 +8,13 @@ import format from './format';
 import flatten from './flatten';
 import overlay from './overlay';
 import edge from './edge';
-import combine from './combine';
+import html from './html';
+import layout from './layout';
 import util from './util';
 import template from './template';
 
 export function overall() {
-  let list = [formats, flattens, overlays, edges, combines];
+  let list = [formats, flattens, overlays, edges, layouts, htmls];
   for(let i = 0; i < list.length; i++) {
     let res = list[i](true);
     if(!res) {
@@ -231,7 +232,7 @@ export function edges(noAlert) {
     let dir = `${directory}/${id}.json`;
     message.push(dir);
     let s = JSON.stringify({
-      center: item.center,
+      list: item.list,
       finalHorizontal: item.finalHorizontal.map(h => {
         return {
           x: h.x,
@@ -267,7 +268,7 @@ export function edges(noAlert) {
   return true;
 }
 
-export function combines(noAlert) {
+export function layouts(noAlert) {
   let selection = preCheck();
   if(!selection) {
     return false;
@@ -296,11 +297,11 @@ export function combines(noAlert) {
     list.push(json);
   });
   let arr = list.map(item => {
-    return combine(item);
+    return layout(item);
   });
   let message = [];
   arr.forEach((item, i) => {
-    let directory = `${NSHomeDirectory()}/Documents/sketch2html/combine`;
+    let directory = `${NSHomeDirectory()}/Documents/sketch2html/layout`;
     let fileManager = NSFileManager.defaultManager();
     if(!fileManager.fileExistsAtPath(NSString.stringWithString(directory))) {
       fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(NSString.stringWithString(directory), true, null, null);
@@ -312,7 +313,56 @@ export function combines(noAlert) {
     NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
   });
   if(noAlert !== true) {
-    UI.alert('Message', `JSON combine have been outputing to:\n${message.join('\n')}`);
+    UI.alert('Message', `JSON layout have been outputing to:\n${message.join('\n')}`);
+  }
+  return true;
+}
+
+export function htmls(noAlert) {
+  let selection = preCheck();
+  if(!selection) {
+    return false;
+  }
+  let check = [];
+  selection.forEach(item => {
+    let dir = `${NSHomeDirectory()}/Documents/sketch2html/layout/${item.id}.json`;
+    let fileManager = NSFileManager.defaultManager();
+    if(!fileManager.fileExistsAtPath(NSString.stringWithString(dir))) {
+      check.push(dir);
+    }
+  });
+  if(check.length) {
+    UI.alert('Warn', `JSON data must be prepared by layout command:\n${check.join('\n')}`);
+    return false;
+  }
+  let list = [];
+  let ids = [];
+  selection.forEach(item => {
+    ids.push(item.id);
+    let dir = `${NSHomeDirectory()}/Documents/sketch2html/layout/${item.id}.json`;
+    let fileHandler = NSFileHandle.fileHandleForReadingAtPath(dir);
+    let data = fileHandler.readDataToEndOfFile();
+    let s = NSString.alloc().initWithData_encoding(data, NSUTF8StringEncoding);
+    let json = JSON.parse(s);
+    list.push(json);
+  });
+  let arr = list.map(item => {
+    return html(item);
+  });
+  let message = [];
+  arr.forEach((item, i) => {
+    let directory = `${NSHomeDirectory()}/Documents/sketch2html/html`;
+    let fileManager = NSFileManager.defaultManager();
+    if(!fileManager.fileExistsAtPath(NSString.stringWithString(directory))) {
+      fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(NSString.stringWithString(directory), true, null, null);
+    }
+    let id = ids[i];
+    let dir = `${directory}/${id}.html`;
+    message.push(dir);
+    NSString.stringWithString(item).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
+  });
+  if(noAlert !== true) {
+    UI.alert('Message', `JSON html have been outputing to:\n${message.join('\n')}`);
   }
   return true;
 }

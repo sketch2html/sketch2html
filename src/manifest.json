@@ -39,10 +39,16 @@
       "handler": "edges"
     },
     {
-      "name": "combine",
-      "identifier": "combine",
+      "name": "layout",
+      "identifier": "layout",
       "script": "./debugger.js",
-      "handler": "combines"
+      "handler": "layouts"
+    },
+    {
+      "name": "html",
+      "identifier": "html",
+      "script": "./debugger.js",
+      "handler": "htmls"
     }
   ],
   "menu": {
@@ -57,7 +63,8 @@
           "flatten",
           "overlay",
           "edge",
-          "combine"
+          "layout",
+          "html"
         ]
       }
     ]

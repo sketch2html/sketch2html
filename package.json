@@ -25,7 +25,7 @@
     "@tensorflow/tfjs": "^0.13.5",
     "jszip": "^3.1.5",
     "lodash": "^4.17.11",
-    "skpm": "^1.1.9"
+    "skpm": "^1.1.10"
   },
   "devDependencies": {
     "@skpm/builder": "^0.5.11",

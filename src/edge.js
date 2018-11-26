@@ -314,7 +314,7 @@ function getMerge(extendHorizontal, extendVertical) {
   };
 }
 
-function getUnion(mergeHorizontal, mergeVertical, center, point) {
+function getUnion(mergeHorizontal, mergeVertical, json, point) {
   let unionHorizontal = lodash.cloneDeep(mergeHorizontal);
   let unionVertical = lodash.cloneDeep(mergeVertical);
   // 按行分组点
@@ -466,7 +466,7 @@ function getUnion(mergeHorizontal, mergeVertical, center, point) {
       }
       let a = square[pair[0]];
       let b = square[pair[1]];
-      if(isEmpty(a.y1, a.x4, a.y4, a.x1, center) || isEmpty(b.y1, b.x4, b.y4, b.x1, center)) {
+      if(isEmpty(a.y1, a.x4, a.y4, a.x1, json) || isEmpty(b.y1, b.x4, b.y4, b.x1, json)) {
         a.x4 = b.x4;
         square.splice(pair[1], 1);
         unionVertical.splice(i--, 1);
@@ -481,7 +481,7 @@ function getUnion(mergeHorizontal, mergeVertical, center, point) {
       }
       let a = square[pair[0]];
       let b = square[pair[1]];
-      if(isEmpty(a.y1, a.x4, a.y4, a.x1, center) || isEmpty(b.y1, b.x4, b.y4, b.x1, center)) {
+      if(isEmpty(a.y1, a.x4, a.y4, a.x1, json) || isEmpty(b.y1, b.x4, b.y4, b.x1, json)) {
         a.y4 = b.y4;
         square.splice(pair[1], 1);
         unionHorizontal.splice(i--, 1);
@@ -510,7 +510,7 @@ function getUnion(mergeHorizontal, mergeVertical, center, point) {
   };
 }
 
-function getFinal(unionHorizontal, unionVertical, center, square) {
+function getFinal(unionHorizontal, unionVertical, json, square) {
   let finalHorizontal = lodash.cloneDeep(unionHorizontal);
   let finalVertical = lodash.cloneDeep(unionVertical);
   let finalSquare = lodash.cloneDeep(square);
@@ -529,8 +529,8 @@ function getFinal(unionHorizontal, unionVertical, center, square) {
       let b = pair[1].map(item => {
         return finalSquare[item];
       });
-      let ea = isEmpty(a[0].y1, a[0].x4, a[a.length - 1].y4, a[0].x1, center);
-      let eb = isEmpty(b[0].y1, b[0].x4, b[b.length - 1].y4, b[0].x1, center);
+      let ea = isEmpty(a[0].y1, a[0].x4, a[a.length - 1].y4, a[0].x1, json);
+      let eb = isEmpty(b[0].y1, b[0].x4, b[b.length - 1].y4, b[0].x1, json); console.log(1, ea, eb);
       if(ea || eb) {
         a.forEach((item, i) => {
           if(i) {
@@ -561,8 +561,8 @@ function getFinal(unionHorizontal, unionVertical, center, square) {
       let b = pair[1].map(item => {
         return finalSquare[item];
       });
-      let ea = isEmpty(a[0].y1, a[a.length - 1].x4, a[0].y4, a[0].x1, center);
-      let eb = isEmpty(b[0].y1, b[b.length - 1].x4, b[0].y4, b[0].x1, center);
+      let ea = isEmpty(a[0].y1, a[a.length - 1].x4, a[0].y4, a[0].x1, json);
+      let eb = isEmpty(b[0].y1, b[b.length - 1].x4, b[0].y4, b[0].x1, json); console.log(2, ea, eb);
       if(ea || eb) {
         a.forEach((item, i) => {
           if(i) {
@@ -667,10 +667,10 @@ function isInLine(h, v, square) {
   return right && left;
 }
 
-function isEmpty(top, right, bottom, left, center) {
-  for(let i = 0; i < center.length; i++) {
-    let item = center[i];
-    if(item.x >= left && item.x <= right && item.y >= top && item.y <= bottom) {
+function isEmpty(top, right, bottom, left, json) {
+  for(let i = 0; i < json.length; i++) {
+    let item = json[i];
+    if(item.xs >= left && item.xs <= right && item.ys >= top && item.ys <= bottom) {
       return false;
     }
   }
@@ -770,30 +770,27 @@ function getPairGroupSquare(square, l, hOrV) {
   return null;
 }
 
+function getInSquare(top, right, bottom, left, json) {
+  for(let i = 0; i < json.length; i++) {
+    let item = json[i];
+    if(item.xs >= left && item.xs <= right && item.ys >= top && item.ys <= bottom) {
+      return item;
+    }
+  }
+  return null;
+}
+
 export default function(json) {
   json = json.filter(item => !item.isBackground);
   let { top, right, bottom, left, originHorizontal, originVertical } = getOrigin(json);
   let { extendHorizontal, extendVertical } = getExtend(top, right, bottom, left, originHorizontal, originVertical);
   let { mergeHorizontal, mergeVertical, point } = getMerge(extendHorizontal, extendVertical);
-  let center = [];
-  json.forEach(item => {
-    center.push({
-      x: item.xs + (item.width >> 1),
-      y: item.ys + (item.height >> 1),
-      xs: item.xs,
-      ys: item.ys,
-      width: item.width,
-      height: item.height,
-      id: item.id,
-      isImage: item.isImage,
-      isMeta: item.isMeta,
-      isBackground: item.isBackground,
-      fontSize: item.fontSize,
-      lineHeight: item.lineHeight,
-    });
+  let { unionHorizontal, unionVertical, unionPoint, square } = getUnion(mergeHorizontal, mergeVertical, json, point);
+  let { finalHorizontal, finalVertical, finalSquare } = getFinal(unionHorizontal, unionVertical, json, square);
+  let list = [];
+  finalSquare.forEach(item => {
+    list.push(getInSquare(item.y1, item.x4, item.y4, item.x1, json));
   });
-  let { unionHorizontal, unionVertical, unionPoint, square } = getUnion(mergeHorizontal, mergeVertical, center, point);
-  let { finalHorizontal, finalVertical, finalSquare } = getFinal(unionHorizontal, unionVertical, center, square);
   return {
     originHorizontal,
     originVertical,
@@ -802,12 +799,12 @@ export default function(json) {
     mergeHorizontal,
     mergeVertical,
     point,
-    center,
     unionHorizontal,
     unionVertical,
     unionPoint,
     finalHorizontal,
     finalVertical,
     finalSquare,
+    list,
   };
 }
