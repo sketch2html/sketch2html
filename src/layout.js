@@ -1,5 +1,6 @@
 'use strict';
 
+import modelBasic from './ml/basic';
 import modelRow from './ml/row';
 import modelCol from './ml/col';
 import modelJunior from './ml/junior';
@@ -74,7 +75,28 @@ function single(json) {
 
 function row() {}
 
-function col() {}
+function col(json) {
+  let { list, finalHorizontal, finalVertical } = json;
+  let square = [];
+  let left = finalVertical[0];
+  let right = finalVertical[1];
+  for(let i = 1; i < finalHorizontal.length; i++) {
+    let top = finalHorizontal[i - 1];
+    let bottom = finalHorizontal[i];
+    let o = getInSquare(top.y, right.x, bottom.y, left.x, list);
+    square.push(o);
+  }
+  let data = transform(square);
+  let res = modelBasic(data, 1);
+  if(res.forecast >= 0.5) {}
+  return {
+    flag: flag.GROUP,
+    direction: 0,
+    children: square.map(item => {
+      return Object.assign({ flag: flag.ELEMENT }, item);
+    }),
+  };
+}
 
 function multi(json) {
   let { list, finalHorizontal, finalVertical } = json;
@@ -219,7 +241,7 @@ function multi(json) {
 
 function grid(json, rowNum, colNum) {
   let { list, finalHorizontal, finalVertical } = json;
-  // 先检测去除空白格，获取完整的行列
+  // 行列顺序组成数组
   let square = [];
   for(let i = 1; i <= rowNum; i++) {
     let top = finalHorizontal[i - 1];
@@ -231,187 +253,278 @@ function grid(json, rowNum, colNum) {
       square.push(o);
     }
   }
+  // 检测去除空白格，获取完整的列/空白的列/半空的列
+  let fullCol = [];
+  let emptyCol = [];
+  let halfCol = [];
+  for(let i = 0; i < colNum; i++) {
+    let has = false;
+    let none = false;
+    for(let j = 0; j < rowNum; j++) {
+      let k = j * colNum + i;
+      if(square[k]) {
+        has = true;
+      }
+      else {
+        none = true;
+      }
+    }
+    if(has && !none) {
+      fullCol.push(i);
+    }
+    else if(!has && none) {
+      emptyCol.push(i);
+    }
+    else {
+      halfCol.push(i);
+    }
+  }
+  // 先移除空白列，等于合并空白列两侧的边
+  if(emptyCol.length) {
+    for(let i = emptyCol.length - 1; i >= 0; i--) {
+      let item = emptyCol[i];
+      for(let j = 0; j < rowNum; j++) {
+        let k = j * colNum + item;
+        square.splice(k, 1);
+        // finalVertical.splice(item, 1);
+        fullCol = fullCol.map(item2 => {
+          if(item2 > item) {
+            return item2 - 1;
+          }
+          return item2;
+        });
+        halfCol = halfCol.map(item2 => {
+          if(item2 > item) {
+            return item2 - 1;
+          }
+          return item2;
+        });
+      }
+      finalVertical.splice(item, 1);
+    }
+    colNum -= emptyCol.length;
+  }
+  // 完整的矩阵
+  if(fullCol.length === colNum) {
+    if(rowNum === 1) {
+      return row(json);
+    }
+    if(colNum === 1) {
+      return col(json);
+    }
+    return matrix(square, rowNum, colNum);
+  }
   return null;
-  // let { list, finalHorizontal, finalVertical, finalSquare } = json;
-  // let row = finalHorizontal.length - 1;
-  // let col = finalVertical.length - 1;
-  // let data = [];
-  // finalSquare.forEach(item => {
-  //   let o = getInSquare(item.y1, item.x4, item.y4, item.x1, list);
-  //   data.push({
-  //     x: o.x,
-  //     y: o.y,
-  //     width: o.width,
-  //     height: o.height,
-  //     type: o.isImage ? 0 : 1,
-  //     fontSize: o.fontSize,
-  //     lineHeight: o.lineHeight,
-  //   });
-  // });
-  // let rRow = modelRow(data, row, col);
-  // let rCol = modelCol(data, row, col);
-  // let forecast = Math.max(rRow.forecast, rCol.forecast);
-  // let direction = rRow.forecast >= rCol.forecast ? 0 : 1;
-  // let res = {
-  //   forecast,
-  //   row: rRow.forecast,
-  //   col: rCol.forecast,
-  //   direction,
-  // };
-  // let split = [];
-  // if(row > 2) {}
-  // if(col > 2) {
-  //   for(let i = 1; i < col; i++) {
-  //     // start部分
-  //     if(i > 1) {
-  //       let nData = [];
-  //       for(let j = 0; j < row; j++) {
-  //         for(let k = 0; k < i; k++) {
-  //           nData.push(data[j * col + k]);
-  //         }
-  //       }
-  //       let rRow = modelRow(nData, row, i);
-  //       let rCol = modelCol(nData, row, i);
-  //       if(rRow.forecast >= 0.5) {
-  //         let temp = modelJunior(forecast, rRow.forecast);
-  //         if(temp.forecast >= 0.5) {
-  //           split.push({
-  //             h: 0,
-  //             v: i,
-  //             direction: 0,
-  //             area: 0,
-  //             forecast: temp.forecast,
-  //           });
-  //         }
-  //       }
-  //       if(rCol.forecast >= 0.5) {
-  //         let temp = modelJunior(forecast, rCol.forecast);
-  //         if(temp.forecast >= 0.5) {
-  //           split.push({
-  //             h: 0,
-  //             v: i,
-  //             direction: 1,
-  //             area: 0,
-  //             forecast: temp.forecast,
-  //           });
-  //         }
-  //       }
-  //     }
-  //     // end部分
-  //     if(i < col - 1) {
-  //       let nData = [];
-  //       for(let j = 0; j < row; j++) {
-  //         for(let k = i; k < col; k++) {
-  //           nData.push(data[j * col + k]);
-  //         }
-  //       }
-  //       let rRow = modelRow(nData, row, col - i);
-  //       let rCol = modelCol(nData, row, col - i);
-  //       if(rRow.forecast >= 0.5) {
-  //         let temp = modelJunior(forecast, rRow.forecast);
-  //         if(temp.forecast >= 0.5) {
-  //           split.push({
-  //             h: 0,
-  //             v: i,
-  //             direction: 0,
-  //             area: 1,
-  //             forecast: temp.forecast,
-  //           });
-  //         }
-  //       }
-  //       if(rCol.forecast >= 0.5) {
-  //         let temp = modelJunior(forecast, rCol.forecast);
-  //         if(temp.forecast >= 0.5) {
-  //           split.push({
-  //             h: 0,
-  //             v: i,
-  //             direction: 1,
-  //             area: 1,
-  //             forecast: temp.forecast,
-  //           });
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
-  // if(split.length === 1) {
-  //   split = split[0];
-  //   let children = [];
-  //   if(split.direction === 0) {}
-  //   else {
-  //     if(split.area === 0) {}
-  //     else {
-  //       let left = {
-  //         flag: flag.GROUP,
-  //         direction: 0,
-  //         children: [],
-  //       };
-  //       for(let i = 0; i < split.v; i++) {
-  //         for(let j = 0; j < row; j++) {
-  //           let item = Object.assign({
-  //             flag: flag.ELEMENT,
-  //           }, list[j * col + i]);
-  //           left.children.push(item);
-  //         }
-  //       }
-  //       children.push(left);
-  //       let right = {
-  //         flag: flag.LIST,
-  //         direction: 1,
-  //         children: [],
-  //       };
-  //       for(let i = split.v; i < col; i++) {
-  //         let temp = {
-  //           flag: flag.GROUP,
-  //           direction: 0,
-  //           children: [],
-  //         };
-  //         for(let j = 0; j < row; j++) {
-  //           let item = Object.assign({
-  //             flag: flag.ELEMENT,
-  //           }, list[j * col + i]);
-  //           temp.children.push(item);
-  //         }
-  //         right.children.push(temp);
-  //       }
-  //       children.push(right);
-  //     }
-  //   }
-  //   return {
-  //     flag: flag.GROUP,
-  //     direction: split.direction,
-  //     children,
-  //   };
-  // }
-  // else if(split.length > 1) {}
-  // else if(res.forecast >= 0.5){
-  //   if(res.row >= res.col) {}
-  //   else {
-  //     let children = [];
-  //     for(let i = 0; i < col; i++) {
-  //       let temp = {
-  //         flag: flag.GROUP,
-  //         direction: 0,
-  //         children: [],
-  //       };
-  //       for(let j = 0; j < row; j++) {
-  //         let item = Object.assign({
-  //           flag: flag.ELEMENT,
-  //         }, list[j * col + i]);
-  //         temp.children.push(item);
-  //       }
-  //       children.push(temp);
-  //     }
-  //     return {
-  //       flag: flag.LIST,
-  //       direction: res.direction,
-  //       children,
-  //     };
-  //   }
-  // }
-  // return res;
+}
+
+function matrix(list, rowNum, colNum) {
+  // 尝试整个行列成组ai判断
+  let data = transform(list);
+  let rRow = modelRow(data, rowNum, colNum);
+  let rCol = modelCol(data, rowNum, colNum);
+  let forecast = Math.max(rRow.forecast, rCol.forecast);
+  let direction = rRow.forecast >= rCol.forecast ? 0 : 1;
+  let total = {
+    forecast,
+    row: rRow.forecast,
+    col: rCol.forecast,
+    direction: forecast >= 0.5 ? direction : 0,
+  };
+  // 多行多列时，尝试一级拆分，并拆分后的结果与之前进行初级布局ai判断
+  let split = [];
+  if(rowNum > 2) {}
+  if(colNum > 2) {
+    for(let i = 1; i < colNum; i++) {
+      // TODO: 特殊情况下判断左右均可分割时，需忽略
+      // start部分
+      if(i > 1) {
+        let nData = [];
+        for(let j = 0; j < rowNum; j++) {
+          for(let k = 0; k < i; k++) {
+            nData.push(data[j * colNum + k]);
+          }
+        }
+        let rRow = modelRow(nData, rowNum, i);
+        let rCol = modelCol(nData, rowNum, i);
+        if(rRow.forecast >= 0.5) {
+          let temp = modelJunior(forecast, rRow.forecast);
+          if(temp.forecast >= 0.5) {
+            split.push({
+              h: 0,
+              v: i,
+              direction: 0,
+              area: 0,
+              forecast: temp.forecast,
+            });
+          }
+        }
+        if(rCol.forecast >= 0.5) {
+          let temp = modelJunior(forecast, rCol.forecast);
+          if(temp.forecast >= 0.5) {
+            split.push({
+              h: 0,
+              v: i,
+              direction: 1,
+              area: 0,
+              forecast: temp.forecast,
+            });
+          }
+        }
+      }
+      // end部分
+      if(i < colNum - 1) {
+        let nData = [];
+        for(let j = 0; j < rowNum; j++) {
+          for(let k = i; k < colNum; k++) {
+            nData.push(data[j * colNum + k]);
+          }
+        }
+        let rRow = modelRow(nData, rowNum, colNum - i);
+        let rCol = modelCol(nData, rowNum, colNum - i);
+        if(rRow.forecast >= 0.5) {
+          let temp = modelJunior(forecast, rRow.forecast);
+          if(temp.forecast >= 0.5) {
+            split.push({
+              h: 0,
+              v: i,
+              direction: 0,
+              area: 1,
+              forecast: temp.forecast,
+            });
+          }
+        }
+        if(rCol.forecast >= 0.5) {
+          let temp = modelJunior(forecast, rCol.forecast);
+          if(temp.forecast >= 0.5) {
+            split.push({
+              h: 0,
+              v: i,
+              direction: 1,
+              area: 1,
+              forecast: temp.forecast,
+            });
+          }
+        }
+      }
+    }
+  }
+  if(split.length === 1) {}
+  else if(split.length > 1) {}
+  else if(total.forecast >= 0.5) {
+    if(total.row >= total.col) {}
+    else {
+      let children = [];
+      for(let i = 0; i < colNum; i++) {
+        let temp = {
+          flag: flag.GROUP,
+          direction: 0,
+          children: [],
+        };
+        for(let j = 0; j < rowNum; j++) {
+          let item = Object.assign({
+            flag: flag.ELEMENT,
+          }, list[j * colNum + i]);
+          temp.children.push(item);
+        }
+        children.push(temp);
+      }
+      return {
+        flag: flag.LIST,
+        direction: total.direction,
+        children,
+      };
+    }
+  }
+  // 只是普通的多行列
+  return {
+    flag: flag.GROUP,
+    direction: 0,
+  }
+}
+
+function transform(list) {
+  return list.map(item => {
+    return {
+      x: item.xs,
+      y: item.ys,
+      width: item.width,
+      height: item.height,
+      type: item.isImage ? 0 : 1,
+      fontSize: item.fontSize,
+      lineHeight: item.lineHeight,
+    };
+  });
+}
+
+// 相同direction的group下嵌套的group，可以提取children至上一级
+function mergeSameDirectionGroup(json) {
+  if(!json || !json.children || [flag.GROUP, flag.LIST].indexOf(json.flag) === -1) {
+    return;
+  }
+  let sameDirection = json.flag === flag.GROUP;
+  json.children.forEach(item => {
+    if(item === null) {
+      return;
+    }
+    if([flag.GROUP, flag.LIST].indexOf(item.flag) === -1) {
+      return;
+    }
+    if(item.flag === flag.LIST || item.direction !== json.direction) {
+      sameDirection = false;
+    }
+    mergeSameDirectionGroup(item);
+  });
+  if(sameDirection) {
+    let children = json.children;
+    for(let i = children.length - 1; i >= 0; i--) {
+      let item = children[i];
+      if([flag.GROUP, flag.LIST].indexOf(item.flag) === -1) {
+        continue;
+      }
+      children.splice(i, 1, ...item.children);
+    }
+  }
+}
+
+function markSameDirection(json, last) {
+  if(!json || !json.children || [flag.GROUP, flag.LIST].indexOf(json.flag) === -1) {
+    return;
+  }
+  let onlyElement = json.flag === flag.GROUP;
+  json.children.forEach(item => {
+    if(item === null) {
+      return;
+    }
+    if(item.flag !== flag.ELEMENT) {
+      onlyElement = false;
+    }
+    markSameDirection(item, json);
+  });
+  if(onlyElement && last && last.flag === flag.GROUP && last.direction === json.direction) {
+    json.onlyElement = true;
+  }
+}
+
+function promoteSameDirection(json) {
+  if(!json || !json.children || [flag.GROUP, flag.LIST].indexOf(json.flag) === -1) {
+    return;
+  }
+  let children = json.children;
+  for(let i = children.length - 1; i >= 0; i--) {
+    let item = children[i];
+    if(item.onlyElement) {
+      children.splice(i, 1, ...item.children);
+    }
+  }
+  children.forEach(item => {
+    promoteSameDirection(item);
+  });
 }
 
 export default function(json) {
-  return recursion(json);
+  let res = recursion(json);
+  mergeSameDirectionGroup(res);
+  markSameDirection(res);
+  promoteSameDirection(res);
+  return res;
 }
