@@ -38,5 +38,20 @@ export default function(json) {
   list.forEach((item, i) => {
     item.z = i;
   });
-  return list;
+  return {
+    parent: {
+      id: json.id,
+      name: json.name,
+      type: json.type,
+      x: json.x,
+      y: json.y,
+      xs: json.xs,
+      ys: json.ys,
+      xc: json.xc,
+      yc: json.yc,
+      width: json.width,
+      height: json.height,
+    },
+    list,
+  };
 }

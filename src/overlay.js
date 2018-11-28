@@ -20,10 +20,11 @@ function addOverlay(a, b) {
 }
 
 export default function(json) {
-  for(let i = 0, len = json.length; i < len - 1; i++) {
-    let a = json[i];
+  let { list } = json;
+  for(let i = 0, len = list.length; i < len - 1; i++) {
+    let a = list[i];
     for(let j = i + 1; j < len; j++) {
-      let b = json[j];
+      let b = list[j];
       if(overlay(a, b)) {
         addOverlay(a, b);
       }
@@ -31,12 +32,12 @@ export default function(json) {
   }
   let zHash = new Map();
   let lHash = new Map();
-  json.forEach((item, i) => {
+  list.forEach((item, i) => {
     zHash.set(item.id, i);
     lHash.set(item.id, item);
   });
   // 重合的图层，排除掉本身是背景的图，下方为图像的肯定是背景图
-  json.forEach((item, i) => {
+  list.forEach((item, i) => {
     if(item.overlay.length && (item.isImage || item.isMeta)) {
       let num = 0;
       item.overlay.forEach(id => {

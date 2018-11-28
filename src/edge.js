@@ -771,12 +771,13 @@ function getPairGroupSquare(square, l, hOrV) {
 }
 
 export default function(json) {
-  json = json.filter(item => !item.isBackground);
-  let { top, right, bottom, left, originHorizontal, originVertical } = getOrigin(json);
+  let { parent, list } = json;
+  let available = list.filter(item => !item.isBackground);
+  let { top, right, bottom, left, originHorizontal, originVertical } = getOrigin(available);
   let { extendHorizontal, extendVertical } = getExtend(top, right, bottom, left, originHorizontal, originVertical);
   let { mergeHorizontal, mergeVertical, point } = getMerge(extendHorizontal, extendVertical);
-  let { unionHorizontal, unionVertical, unionPoint, square } = getUnion(mergeHorizontal, mergeVertical, json, point);
-  let { finalHorizontal, finalVertical, finalSquare } = getFinal(unionHorizontal, unionVertical, json, square);
+  let { unionHorizontal, unionVertical, unionPoint, square } = getUnion(mergeHorizontal, mergeVertical, available, point);
+  let { finalHorizontal, finalVertical, finalSquare } = getFinal(unionHorizontal, unionVertical, available, square);
   return {
     originHorizontal,
     originVertical,
@@ -792,6 +793,8 @@ export default function(json) {
     finalHorizontal,
     finalVertical,
     finalSquare,
-    list: json,
+    available,
+    parent,
+    list,
   };
 }

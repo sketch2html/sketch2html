@@ -14,6 +14,9 @@ export default {
       if(layer.parent.type === type.PAGE) {
         return layer;
       }
+      if(layer.parent.type === type.GROUP) {
+        return layer;
+      }
       layer = layer.parent;
     }
     while(layer.parent);

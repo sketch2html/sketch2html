@@ -10,7 +10,7 @@ import sort from './sort';
 function getInSquare(top, right, bottom, left, list) {
   for(let i = 0; i < list.length; i++) {
     let item = list[i];
-    if(item.xc >= left && item.xc <= right && item.yc >= top && item.yc <= bottom) {
+    if(!item.isBackground && item.xc >= left && item.xc <= right && item.yc >= top && item.yc <= bottom) {
       return item;
     }
   }
@@ -522,9 +522,15 @@ function promoteSameDirection(json) {
 }
 
 export default function(json) {
-  let res = recursion(json);
-  mergeSameDirectionGroup(res);
-  markSameDirection(res);
-  promoteSameDirection(res);
-  return res;
+  let { parent, list } = json;
+  let background = list.filter(item => item.isBackground);
+  let layout = recursion(json);
+  mergeSameDirectionGroup(layout);
+  markSameDirection(layout);
+  promoteSameDirection(layout);
+  return {
+    parent,
+    background,
+    layout,
+  };
 }

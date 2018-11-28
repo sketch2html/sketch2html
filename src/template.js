@@ -108,7 +108,7 @@ body{
   -webkit-transition:opacity 0.3s;
   transition:opacity 0.3s;
 }
-${data.item.map(data => {
+${data.item.list.map(data => {
   return `#preview #i${data.id}{
   left:${data.xs}px;
   top:${data.ys}px;
@@ -163,7 +163,7 @@ ${data.item.map(data => {
 </head>
 <body>
 <ul id="preview">
-${data.item.filter(data => {
+${data.item.list.filter(data => {
   return !data.isBackground;
 }).map(data => {
   return `<li id="i${data.id}" title="${data.name}"></li>`;
@@ -171,7 +171,7 @@ ${data.item.filter(data => {
 </ul>
 <dl id="list">
 <dt>restore:
-${data.item.filter(data => {
+${data.item.list.filter(data => {
   if(hash.hasOwnProperty(data.type)) {
     return false;
   }
@@ -180,7 +180,7 @@ ${data.item.filter(data => {
 }).map(data => {
   return `<span class="${data.type}">${data.type}</span>`;
 }).join('\n')}</dt>
-${data.item.filter(data => {
+${data.item.list.filter(data => {
     return !data.isBackground;
 }).map(data => {
   return `<dd id="i${data.id}" class="${data.type}" title="${data.id}">${data.name}</dd>`;
@@ -407,7 +407,7 @@ body{
     return `<li class="v" style="left:${data.x}px;top:${data.y[0]}px;height:${data.y[1] - data.y[0]}px"
       title="${data.x}|${data.y[0]}:${data.y[1]}" alt="${data.st}|${data.i}"></li>`;
   }).join('\n')}
-  ${data.item.list.map(data => {
+  ${data.item.available.map(data => {
     return `<li class="c" style="left:${data.xc}px;top:${data.yc}px"></li>`;
   }).join('\n')}
   ${data.item.point.map(data => {
@@ -423,7 +423,7 @@ body{
     return `<li class="v" style="left:${data.x}px;top:${data.y[0]}px;height:${data.y[1] - data.y[0]}px"
       title="${data.x}|${data.y[0]}:${data.y[1]}" alt="${data.st}|${data.i}"></li>`;
   }).join('\n')}
-  ${data.item.list.map(data => {
+  ${data.item.available.map(data => {
     return `<li class="c" style="left:${data.xc}px;top:${data.yc}px"></li>`;
   }).join('\n')}
   ${data.item.unionPoint.map(data => {
@@ -439,7 +439,7 @@ body{
     return `<li class="v" style="left:${data.x}px;top:${data.y[0]}px;height:${data.y[1] - data.y[0]}px"
       title="${data.x}|${data.y[0]}:${data.y[1]}" alt="${data.st}|${data.i}"></li>`;
   }).join('\n')}
-  ${data.item.list.map(data => {
+  ${data.item.available.map(data => {
     return `<li class="c" style="left:${data.xc}px;top:${data.yc}px"></li>`;
   }).join('\n')}
 </ul>

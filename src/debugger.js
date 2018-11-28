@@ -95,7 +95,7 @@ export function flattens(noAlert) {
     let top = util.getTop(layer);
     let pageWidth = top.frame.width;
     let pageHeight = top.frame.height;
-    item.forEach(data => {
+    item.list.forEach(data => {
       let layer = document.getLayerWithID(data.id);
       expt(layer, {
         output: `${directory}`,
@@ -167,7 +167,7 @@ export function overlays(noAlert) {
     let top = util.getTop(layer);
     let pageWidth = top.frame.width;
     let pageHeight = top.frame.height;
-    item.forEach(data => {
+    item.list.forEach(data => {
       let layer = document.getLayerWithID(data.id);
       expt(layer, {
         output: `${directory}`,
@@ -232,6 +232,7 @@ export function edges(noAlert) {
     let dir = `${directory}/${id}.json`;
     message.push(dir);
     let s = JSON.stringify({
+      parent: item.parent,
       list: item.list,
       finalHorizontal: item.finalHorizontal.map(h => {
         return {
@@ -245,7 +246,6 @@ export function edges(noAlert) {
           y: v.y,
         };
       }),
-      finalSquare: item.finalSquare,
     }, null, 2);
     NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
     dir = `${directory}/${id}.html`;

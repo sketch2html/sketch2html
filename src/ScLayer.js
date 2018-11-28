@@ -232,15 +232,17 @@ class ScLayer {
     }
     let xs = this.xs;
     let ys = this.ys;
+    let sketchObject = this.layer.sketchObject;
     let fontSize = 0;
     let lineHeight = 0;
     let color;
     let fontFamily;
+    let backgroundColor;
+    let border;
     // 拿字体大小等信息
     // https://sketchplugins.com/d/200-font-method-of-mstextlayer
     // https://github.com/abynim/Sketch-Headers/blob/master/Headers/MSTextLayer.h
     if(this.type === type.TEXT) {
-      let sketchObject = this.layer.sketchObject;
       fontSize = sketchObject.fontSize();
       lineHeight = sketchObject.lineHeight();
       if(lineHeight === 0) {
@@ -249,6 +251,25 @@ class ScLayer {
       color = sketchObject.textColor();
       color = `rgba(${color.red()*100}%,${color.green()*100}%,${color.blue()*100}%,${color.alpha()*100}%)`;
       fontFamily = sketchObject.fontPostscriptName() + '';
+    }
+    else if(this.type === type.SHAPE_PATH) {
+      let fills = this.layer.style.fills;
+      fills = fills.filter(item => {
+        return item.fill === 'Color' && item.enabled;
+      });
+      if(fills.length === 1) {
+        backgroundColor = fills[0].color;
+      }
+      let borders = this.layer.style.borders;
+      borders = borders.filter(item => {
+        return item.fillType === 'Color' && item.enabled;
+      });
+      border = borders.map(item => {
+        return {
+          position: item.position,
+          color: item.color,
+        };
+      });
     }
     this._json = {
       id: this.id,
@@ -278,6 +299,9 @@ class ScLayer {
       text: this.layer.text,
       color,
       fontFamily,
+      opacity: this.layer.style.opacity,
+      backgroundColor,
+      border,
     };
     return this._json;
   }
