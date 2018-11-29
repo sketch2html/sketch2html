@@ -232,7 +232,7 @@ export function edges(noAlert) {
     let dir = `${directory}/${id}.json`;
     message.push(dir);
     let s = JSON.stringify({
-      parent: item.parent,
+      top: item.top,
       list: item.list,
       finalHorizontal: item.finalHorizontal.map(h => {
         return {

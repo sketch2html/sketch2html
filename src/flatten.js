@@ -39,7 +39,7 @@ export default function(json) {
     item.z = i;
   });
   return {
-    parent: {
+    top: {
       id: json.id,
       name: json.name,
       type: json.type,

@@ -771,7 +771,7 @@ function getPairGroupSquare(square, l, hOrV) {
 }
 
 export default function(json) {
-  let { parent, list } = json;
+  let { list } = json;
   let available = list.filter(item => !item.isBackground);
   let { top, right, bottom, left, originHorizontal, originVertical } = getOrigin(available);
   let { extendHorizontal, extendVertical } = getExtend(top, right, bottom, left, originHorizontal, originVertical);
@@ -794,7 +794,7 @@ export default function(json) {
     finalVertical,
     finalSquare,
     available,
-    parent,
+    top: json.top,
     list,
   };
 }

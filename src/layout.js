@@ -521,16 +521,17 @@ function promoteSameDirection(json) {
   });
 }
 
+function attachBackground(layout, background) {}
+
 export default function(json) {
-  let { parent, list } = json;
-  let background = list.filter(item => item.isBackground);
+  let { top, list } = json;
   let layout = recursion(json);
   mergeSameDirectionGroup(layout);
   markSameDirection(layout);
   promoteSameDirection(layout);
   return {
-    parent,
-    background,
+    top,
+    list,
     layout,
   };
 }
