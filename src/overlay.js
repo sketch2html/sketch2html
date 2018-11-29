@@ -1,5 +1,7 @@
 'use strict';
 
+import type from './type';
+
 function overlay(a, b) {
   if(b.xs >= a.xs + a.width || a.xs >= b.xs + b.width) {
     return false;
@@ -36,17 +38,32 @@ export default function(json) {
     zHash.set(item.id, i);
     lHash.set(item.id, item);
   });
-  // 重合的图层，排除掉本身是背景的图，下方为图像的肯定是背景图
+  // 和文字重合且在下方的一定是背景图
   list.forEach((item, i) => {
     if(item.overlay.length && (item.isImage || item.isMeta)) {
       let num = 0;
       item.overlay.forEach(id => {
         let z = zHash.get(id);
-        if(z > i) {
+        let o = lHash.get(id);
+        if(z > i && o.type === type.TEXT) {
           num++;
         }
       });
       item.isBackground = num > 0;
+    }
+  });
+  // 重合的图像图层，取下方的作为布局，上方的为前景图
+  list.forEach((item, i) => {
+    if(item.overlay.length && (item.isImage || item.isMeta) && !item.isBackground && item.type !== type.TEXT) {
+      let num = 0;
+      item.overlay.forEach(id => {
+        let z = zHash.get(id);
+        let o = lHash.get(id);
+        if(!o.isBackground && z < i) {
+          num++;
+        }
+      });
+      item.isForeground = num > 0;
     }
   });
   return json;

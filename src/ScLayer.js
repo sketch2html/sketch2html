@@ -72,6 +72,12 @@ class ScLayer {
   set isBackground(v) {
     this._isBackground = !!v;
   }
+  get isForeground() {
+    return !!this._isForeground;
+  }
+  set isForeground(v) {
+    this._isForeground = !!v;
+  }
   get isBorder() {
     return !!this._isBorder;
   }
@@ -280,6 +286,7 @@ class ScLayer {
       isImage: this.isImage,
       overlay: this.overlay,
       isBackground: this.isBackground,
+      isForeground: this.isForeground,
       isBorder: this.isBorder,
       isAbsolute: this.isAbsolute,
       isRelative: this.isRelative,
