@@ -486,6 +486,7 @@ function mergeSameDirectionGroup(json) {
   }
 }
 
+// 标记上下级组相同方向，且下级组仅包含元素的情况
 function markSameDirection(json, last) {
   if(!json || !json.children || [flag.GROUP, flag.LIST].indexOf(json.flag) === -1) {
     return;
@@ -505,6 +506,7 @@ function markSameDirection(json, last) {
   }
 }
 
+// 合并掉上述情况，由上级组直接包含元素
 function promoteSameDirection(json) {
   if(!json || !json.children || [flag.GROUP, flag.LIST].indexOf(json.flag) === -1) {
     return;
@@ -521,7 +523,135 @@ function promoteSameDirection(json) {
   });
 }
 
-function attachBackground(layout, background) {}
+// 标记组包含的所有元素id列表
+function markIdList(json) {
+  if(!json) {
+    return [];
+  }
+  let idList = [];
+  if(json.flag === flag.ELEMENT) {
+    idList.push(json.id);
+  }
+  else {
+    json.children.forEach(item => {
+      idList = idList.concat(markIdList(item));
+    });
+    json.idList = idList;
+  }
+  return idList;
+}
+
+// background和元素一一对应时，被视作元素背景
+function attachElementBackground(json, background) {
+  if(!json) {
+    return;
+  }
+  // 元素只有当和背景一对一时才符合，元素可能包含多个背景，进行筛选；极端条件一对一可能出现多个，暂时忽略
+  if(json.flag === flag.ELEMENT) {
+    let bg;
+    json.overlay.forEach(item => {
+      if(background.has(item)) {
+        let temp = background.get(item);
+        let count = 0;
+        temp.overlay.forEach(item2 => {
+          if(!background.has(item2)) {
+            count++;
+          }
+        });
+        if(count === 1) {
+          bg = temp;
+        }
+      }
+    });
+    if(bg) {
+      json.bg = bg;
+      background.delete(bg.id);
+    }
+  }
+  else {
+    json.children.forEach(item => {
+      attachElementBackground(item, background);
+    });
+  }
+}
+
+// background被最小完整包含于一个组，即冲突id最小包含时，被认为是组的背景
+function attachGroupBackground(json, available, background) {
+  if(!json) {
+    return;
+  }
+  if([flag.GROUP, flag.LIST].indexOf(json.flag) > -1) {
+    // 深度优先遍历，确保最小完整包含
+    json.children.forEach(item => {
+      attachGroupBackground(item, available, background);
+    });
+    let idMap = new Map();
+    json.idList.forEach(item => {
+      idMap.set(item, true);
+    });
+    let bg;
+    background.forEach(item => {
+      let list = item.overlay.filter(item2 => available.has(item2));
+      if(list.length) {
+        let count = 0;
+        list.forEach(item2 => {
+          if(idMap.has(item2)) {
+            count++;
+          }
+        });
+        if(count === list.length) {
+          bg = item;
+        }
+      }
+    });
+    if(bg) {
+      json.bg = bg;
+      background.delete(bg.id);
+    }
+  }
+}
+
+// 标记每层dom的范围，包括background
+function markRect(json) {
+  if(!json) {
+    return;
+  }
+  if([flag.GROUP, flag.LIST].indexOf(json.flag) > -1) {
+    let list = json.children.map(item => {
+      return markRect(item);
+    });
+    let rect = Object.assign([], list[0]);
+    for(let i = 1; i < list.length; i++) {
+      let item = list[i];
+      rect[0] = Math.min(rect[0], item[0]);
+      rect[1] = Math.max(rect[1], item[1]);
+      rect[2] = Math.max(rect[2], item[2]);
+      rect[3] = Math.min(rect[3], item[3]);
+    }
+    let bg = json.bg;
+    if(bg) {
+      rect[0] = Math.min(rect[0], bg.ys);
+      rect[1] = Math.max(rect[1], bg.xs + bg.width);
+      rect[2] = Math.max(rect[2], bg.ys + bg.height);
+      rect[3] = Math.min(rect[3], bg.xs);
+    }
+    json.rect = rect;
+    return rect;
+  }
+  else {
+    let { xs, ys, width, height, bg } = json;
+    let x4 = xs + width;
+    let y4 = ys + height;
+    if(bg) {
+      xs = Math.min(xs, bg.xs);
+      ys = Math.min(ys, bg.ys);
+      x4 = Math.max(x4, bg.xs + bg.width);
+      y4 = Math.max(y4, bg.ys + bg.height);
+    }
+    json.rect = [ys, x4, y4, xs];
+    return json.rect;
+  }
+}
 
 export default function(json) {
   let { top, list } = json;
@@ -529,6 +659,20 @@ export default function(json) {
   mergeSameDirectionGroup(layout);
   markSameDirection(layout);
   promoteSameDirection(layout);
+  markIdList(layout);
+  let available = new Map();
+  let background = new Map();
+  list.forEach(item => {
+    if(item.isBackground) {
+      background.set(item.id, item);
+    }
+    else if(!item.isForeground) {
+      available.set(item.id, item);
+    }
+  });
+  attachElementBackground(layout, background);
+  attachGroupBackground(layout, available, background);
+  markRect(layout);
   return {
     top,
     list,

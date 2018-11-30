@@ -230,7 +230,7 @@ class ScLayer {
     if(this._json) {
       return this._json;
     }
-    let childrenJson = null;
+    let childrenJson;
     if(this.children) {
       childrenJson = this.children.map(child => {
         return child.toJSON();
