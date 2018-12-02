@@ -258,7 +258,7 @@ class ScLayer {
       color = `rgba(${color.red()*100}%,${color.green()*100}%,${color.blue()*100}%,${color.alpha()*100}%)`;
       fontFamily = sketchObject.fontPostscriptName() + '';
     }
-    else if(this.type === type.SHAPE_PATH) {
+    else if([type.SHAPE_PATH, type.SHAPE].indexOf(this.type) > -1) {
       let fills = this.layer.style.fills;
       fills = fills.filter(item => {
         return item.fill === 'Color' && item.enabled;
@@ -310,6 +310,11 @@ class ScLayer {
       backgroundColor,
       border,
     };
+    if(Math.abs(sketchObject.rotation()) === 90) {
+      [this._json.width, this._json.height] = [this._json.height, this._json.width];
+      this._json.xc = xs + this._json.width * 0.5;
+      this._json.yc = ys + this._json.height * 0.5;
+    }
     return this._json;
   }
   toString() {

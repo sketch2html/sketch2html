@@ -653,6 +653,27 @@ function markRect(json) {
   }
 }
 
+// 设置flex的占比
+function flex(json) {
+  if(!json) {
+    return;
+  }
+  if(json.flag === flag.GROUP) {
+    json.children.forEach(item => flex(item));
+  }
+  else if(json.flag === flag.LIST) {
+    let { direction, children, rect } = json;
+    let w = rect[1] - rect[3];
+    w /= 3;
+    for(let i = 0; i < children.length; i++) {
+      let item = children[i];
+      item.flex = 1;
+      item.rect[3] = rect[3] + w * i;
+      item.rect[1] = Math.min(rect[1], rect[3] + w * (i + 1));
+    }
+  }
+}
+
 export default function(json) {
   let { top, list } = json;
   let layout = recursion(json);
@@ -673,6 +694,7 @@ export default function(json) {
   attachElementBackground(layout, background);
   attachGroupBackground(layout, available, background);
   markRect(layout);
+  flex(layout);
   return {
     top,
     list,

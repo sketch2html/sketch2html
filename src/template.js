@@ -447,7 +447,39 @@ body{
 </html>`;
 }
 
+function html(data) {
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${data.title}</title>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<meta name="format-detection" content="telephone=no"/>
+<meta name="format-detection" content="email=no"/>
+<meta name="wap-font-scale" content="no"/>
+<meta name="viewport" content="width=device-width,initial-scale=0.5,maximum-scale=0.5,minimum-scale=0.5,user-scalable=no">
+<style>
+*,
+:after,
+:before{
+  -webkit-tap-highlight-color:transparent;
+  -webkit-overflow-scrolling:touch;
+}
+html,body{
+  margin:0;
+}
+</style>
+</head>
+<body>
+${data.item}
+</body>
+</html>
+`;
+}
+
 export default {
   flatten,
   edge,
+  html,
 };

@@ -24,4 +24,23 @@ export default {
       return v;
     }
   },
+  joinMarginOrPadding(v) {
+    if(Array.isArray(v)) {
+      let s = '';
+      for(let i = 0; i < v.length; i++) {
+        let item = v[i];
+        if(item === 0) {
+          s += '0 ';
+        }
+        else if(item === 'auto') {
+          s += 'auto ';
+        }
+        else {
+          s += item + 'px ';
+        }
+      }
+      return s.trim();
+    }
+    return v;
+  },
 };

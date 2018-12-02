@@ -12,6 +12,7 @@ import html from './html';
 import layout from './layout';
 import util from './util';
 import template from './template';
+import type from './type';
 
 export function overall() {
   let list = [formats, flattens, overlays, edges, layouts, htmls];
@@ -351,15 +352,32 @@ export function htmls(noAlert) {
   });
   let message = [];
   arr.forEach((item, i) => {
-    let directory = `${NSHomeDirectory()}/Documents/sketch2html/html`;
+    let directory = `${NSHomeDirectory()}/Documents/sketch2html/html/`;
+    let id = ids[i];
+    directory += id;
     let fileManager = NSFileManager.defaultManager();
     if(!fileManager.fileExistsAtPath(NSString.stringWithString(directory))) {
       fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(NSString.stringWithString(directory), true, null, null);
     }
-    let id = ids[i];
-    let dir = `${directory}/${id}.html`;
+    let document = Document.getSelectedDocument();
+    item.list.forEach(data => {
+      if([type.SHAPE_PATH, type.SHAPE, type.IMAGE].indexOf(data.type) > -1) {
+        let layer = document.getLayerWithID(data.id);
+        expt(layer, {
+          output: `${directory}`,
+          'use-id-for-name': true,
+          overwriting: true,
+          'save-for-web': true,
+        });
+      }
+    });
+    let dir = `${directory}/index.html`;
     message.push(dir);
-    NSString.stringWithString(item).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
+    let s = template.html({
+      title: 'html',
+      item: item.html,
+    });
+    NSString.stringWithString(s).writeToFile_atomically_encoding_error(NSString.stringWithString(dir), false, NSUTF8StringEncoding, null);
   });
   if(noAlert !== true) {
     UI.alert('Message', `JSON html have been outputing to:\n${message.join('\n')}`);
