@@ -375,6 +375,10 @@ body{
   border-radius:100%;
   transform:translate(-50%, -50%);
 }
+#preview .s{
+  background:rgba(0, 0, 0, 0.1);
+  border:none;
+}
 </style>
 </head>
 <body>
@@ -426,6 +430,9 @@ body{
   ${data.item.available.map(data => {
     return `<li class="c" style="left:${data.xc}px;top:${data.yc}px"></li>`;
   }).join('\n')}
+  ${data.item.square.map(data => {
+    return `<li class="s" style="left:${data.x1}px;top:${data.y1}px;width:${data.x4 - data.x1}px;height:${data.y4 - data.y1}px"></li>`;
+  }).join('\n')}
   ${data.item.unionPoint.map(data => {
     return `<li class="p" style="left:${data.x}px;top:${data.y}px"></li>`;
   }).join('\n')}
@@ -441,6 +448,9 @@ body{
   }).join('\n')}
   ${data.item.available.map(data => {
     return `<li class="c" style="left:${data.xc}px;top:${data.yc}px"></li>`;
+  }).join('\n')}
+  ${data.item.finalSquare.map(data => {
+    return `<li class="s" style="left:${data.x1}px;top:${data.y1}px;width:${data.x4 - data.x1}px;height:${data.y4 - data.y1}px"></li>`;
   }).join('\n')}
 </ul>
 </body>
