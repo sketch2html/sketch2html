@@ -11,7 +11,7 @@ function recursion(data, list) {
   }
   switch(data.type) {
     case type.GROUP:
-      if(data.image) {
+      if(data.isImage) {
         list.push(data);
       }
       else if(data.children) {

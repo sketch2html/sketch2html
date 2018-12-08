@@ -104,7 +104,7 @@ class ScLayer {
   }
   get xs() {
     let x = this.x;
-    if(this.type === type.GROUP && this.top.id === this.id) {
+    if(this.top.id === this.id) {
       return 0;
     }
     else if(this.parent) {
@@ -114,7 +114,7 @@ class ScLayer {
   }
   get ys() {
     let y = this.y;
-    if(this.type === type.GROUP && this.top.id === this.id) {
+    if(this.top.id === this.id) {
       return 0;
     }
     else if(this.parent) {
@@ -208,7 +208,7 @@ class ScLayer {
                 isImage = false;
               }
             }
-            else if(item.type !== type.SHAPE && item.type !== item.IMAGE && item.type !== item.SHAPE_PATH) {
+            else if(item.type !== type.SHAPE && item.type !== item.IMAGE && item.type !== type.SHAPE_PATH) {
               isImage = false;
             }
           });
