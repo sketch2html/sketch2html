@@ -536,20 +536,20 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
       let ea = isEmpty(a[0].y1, a[0].x4, a[a.length - 1].y4, a[0].x1, json);
       let eb = isEmpty(b[0].y1, b[0].x4, b[b.length - 1].y4, b[0].x1, json);
       if(ea || eb) {
-        // 因删掉中间竖线，合并左右2个水平完全相邻的矩形
-        for(let j = 0; j < a.length; j++) {
-          let sa = a[j];
-          for(let k = 0; k < b.length; k++) {
-            let sb = b[k];
-            if(sa.y1 === sb.y1 && sa.y4 === sb.y4) {
-              sa.x4 = sb.x4;
-              sb.ignore = true;
-              b.splice(k, 1);
-              break;
-            }
+        // 记录下这条线与其它线的交点
+        let cPoint = [];
+        let pointHash = new Map();
+        for(let j = 0; j < finalHorizontal.length; j++) {
+          let h = finalHorizontal[j];
+          if(isCross(h, l)) {
+            cPoint.push({
+              x: l.x,
+              y: h.y,
+            });
+            let key = l.x + ',' + h.y;
+            pointHash.set(key, cPoint.length - 1);
           }
         }
-        finalSquare = finalSquare.filter(item => !item.ignore);
         // 检测横线有没有和被删掉的竖线相交的，将其左右缩短
         for(let j = 1; j < finalHorizontal.length - 1; j++) {
           let l2 = finalHorizontal[j];
@@ -560,6 +560,11 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
                 // 同时尝试将缩掉的这一段线作为相邻边界，合并上下完全相邻的矩形
                 unionSquare(finalSquare, { x: [l2.x[0], l3.x], y: l2.y }, false);
                 l2.x[0] = l3.x;
+                // 缩掉的线同时忽略本来相交的点
+                let key = l.x + ',' + l2.y;
+                if(pointHash.has(key)) {
+                  cPoint[pointHash.get(key)].ignore = true;
+                }
                 break;
               }
             }
@@ -571,13 +576,24 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
                 // 同时尝试将缩掉的这一段线作为相邻边界，合并上下完全相邻的矩形
                 unionSquare(finalSquare, { x: [l3.x, l2.x[1]], y: l2.y }, false);
                 l2.x[1] = l3.x;
+                let key = l.x + ',' + l2.y;
+                if(pointHash.has(key)) {
+                  cPoint[pointHash.get(key)].ignore = true;
+                }
                 break;
               }
             }
           }
         }
-        // 缩短线后再次尝试整个合并
-        unionSquare(finalSquare, l, true);
+        cPoint = cPoint.filter(item => !item.ignore);
+        // 以缩掉的线被还在的点分割的线段为边界，合并完全相邻的矩形
+        for(let j = 0; j < cPoint.length - 1; j++) {
+          let l2 = {
+            x: l.x,
+            y: [cPoint[j].y, cPoint[j + 1].y],
+          };
+          unionSquare(finalSquare, l2, true);
+        }
         finalVertical.splice(i--, 1);
         fin = false;
       }
@@ -597,20 +613,20 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
       let ea = isEmpty(a[0].y1, a[a.length - 1].x4, a[0].y4, a[0].x1, json);
       let eb = isEmpty(b[0].y1, b[b.length - 1].x4, b[0].y4, b[0].x1, json);
       if(ea || eb) {
-        // 因删掉中间横线，合并上下2个垂直完全相邻的矩形
-        for(let j = 0; j < a.length; j++) {
-          let sa = a[j];
-          for(let k = 0; k < b.length; k++) {
-            let sb = b[k];
-            if(sa.x1 === sb.x1 && sa.x4 === sb.x4) {
-              sa.y4 = sb.y4;
-              sb.ignore = true;
-              b.splice(k, 1);
-              break;
-            }
+        // 记录下这条线与其它线的交点
+        let cPoint = [];
+        let pointHash = new Map();
+        for(let j = 0; j < finalVertical.length; j++) {
+          let v = finalVertical[j];
+          if(isCross(l, v)) {
+            cPoint.push({
+              x: v.x,
+              y: l.y,
+            });
+            let key = v.x + ',' + l.y;
+            pointHash.set(key, cPoint.length - 1);
           }
         }
-        finalSquare = finalSquare.filter(item => !item.ignore);
         // 检测竖线有没有和被删掉的横线相交的，将其上下缩短
         for(let j = 1; j < finalVertical.length - 1; j++) {
           let l2 = finalVertical[j];
@@ -621,6 +637,11 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
                 // 同时尝试将缩掉的这一段线作为相邻边界，合并左右完全相邻的矩形
                 unionSquare(finalSquare, { x: l2.x, y: [l2.y[0], l3.y] }, true);
                 l2.y[0] = l3.y;
+                // 缩掉的线同时忽略本来相交的点
+                let key = l2.x + ',' + l.y;
+                if(pointHash.has(key)) {
+                  cPoint[pointHash.get(key)].ignore = true;
+                }
                 break;
               }
             }
@@ -632,14 +653,24 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
                 // 同时尝试将缩掉的这一段线作为相邻边界，合并左右完全相邻的矩形
                 unionSquare(finalSquare, { x: l2.x, y: [l3.y, l2.y[1]] }, true);
                 l2.y[1] = l3.y;
+                let key = l2.x + ',' + l.y;
+                if(pointHash.has(key)) {
+                  cPoint[pointHash.get(key)].ignore = true;
+                }
                 break;
               }
             }
           }
         }
-        // TODO: 应该将删掉的这根线按相交分段，再对称合并，如果不相交就是如下整个合并
-        // 缩短线后再次尝试整个合并
-        unionSquare(finalSquare, l, false);
+        cPoint = cPoint.filter(item => !item.ignore);
+        // 以缩掉的线被还在的点分割的线段为边界，合并完全相邻的矩形
+        for(let j = 0; j < cPoint.length - 1; j++) {
+          let l2 = {
+            x: [cPoint[j].x, cPoint[j + 1].x],
+            y: l.y,
+          };
+          unionSquare(finalSquare, l2, false);
+        }
         finalHorizontal.splice(i--, 1);
         fin = false;
       }
