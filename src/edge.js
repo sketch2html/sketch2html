@@ -556,7 +556,7 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
           if(l2.x[0] === l.x) {
             for(let k = i + 1; k < finalVertical.length - 1; k++) {
               let l3 = finalVertical[k];
-              if(l3.x > l.x) {
+              if(l3.x > l.x && isCross(l2, l3)) {
                 // 同时尝试将缩掉的这一段线作为相邻边界，合并上下完全相邻的矩形
                 unionSquare(finalSquare, { x: [l2.x[0], l3.x], y: l2.y }, false);
                 l2.x[0] = l3.x;
@@ -572,7 +572,7 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
           else if(l2.x[1] === l.x) {
             for(let k = i - 1; k > 0; k--) {
               let l3 = finalVertical[k];
-              if(l3.x < l.x) {
+              if(l3.x < l.x && isCross(l2, l3)) {
                 // 同时尝试将缩掉的这一段线作为相邻边界，合并上下完全相邻的矩形
                 unionSquare(finalSquare, { x: [l3.x, l2.x[1]], y: l2.y }, false);
                 l2.x[1] = l3.x;
@@ -633,7 +633,7 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
           if(l2.y[0] === l.y) {
             for(let k = i + 1; k < finalHorizontal.length - 1; k++) {
               let l3 = finalHorizontal[k];
-              if(l3.y > l.y) {
+              if(l3.y > l.y && isCross(l3, l2)) {
                 // 同时尝试将缩掉的这一段线作为相邻边界，合并左右完全相邻的矩形
                 unionSquare(finalSquare, { x: l2.x, y: [l2.y[0], l3.y] }, true);
                 l2.y[0] = l3.y;
@@ -649,7 +649,7 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
           else if(l2.y[1] === l.y) {
             for(let k = i - 1; k > 0; k--) {
               let l3 = finalHorizontal[k];
-              if(l3.y < l.y) {
+              if(l3.y < l.y && isCross(l3, l2)) {
                 // 同时尝试将缩掉的这一段线作为相邻边界，合并左右完全相邻的矩形
                 unionSquare(finalSquare, { x: l2.x, y: [l3.y, l2.y[1]] }, true);
                 l2.y[1] = l3.y;
