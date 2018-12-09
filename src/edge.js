@@ -514,33 +514,28 @@ function getUnion(mergeHorizontal, mergeVertical, json, point) {
 }
 
 // 以一条线为交界，相邻的两个联合矩形，如果有一个为空，则可以合并
-function getFinal(unionHorizontal, unionVertical, json, square) {
-  let finalHorizontal = lodash.cloneDeep(unionHorizontal);
-  let finalVertical = lodash.cloneDeep(unionVertical);
-  let finalSquare = lodash.cloneDeep(square);
+function getUnBlank(unionHorizontal, unionVertical, json, square) {
+  let blankHorizontal = lodash.cloneDeep(unionHorizontal);
+  let blankVertical = lodash.cloneDeep(unionVertical);
+  let blankSquare = lodash.cloneDeep(square);
   // 再次尝试合并，此次只考虑联合矩形
   do {
     let fin = true;
-    for(let i = 1; i < finalVertical.length - 1; i++) {
-      let l = finalVertical[i];
-      let pair = getPairGroupSquare(finalSquare, l, false);
+    for(let i = 1; i < blankVertical.length - 1; i++) {
+      let l = blankVertical[i];
+      let pair = getPairGroupSquare(blankSquare, l, false);
       if(!pair) {
         continue;
       }
-      let a = pair[0].map(item => {
-        return finalSquare[item];
-      });
-      let b = pair[1].map(item => {
-        return finalSquare[item];
-      });
+      let [a, b] = pair;
       let ea = isEmpty(a[0].y1, a[0].x4, a[a.length - 1].y4, a[0].x1, json);
       let eb = isEmpty(b[0].y1, b[0].x4, b[b.length - 1].y4, b[0].x1, json);
       if(ea || eb) {
         // 记录下这条线与其它线的交点
         let cPoint = [];
         let pointHash = new Map();
-        for(let j = 0; j < finalHorizontal.length; j++) {
-          let h = finalHorizontal[j];
+        for(let j = 0; j < blankHorizontal.length; j++) {
+          let h = blankHorizontal[j];
           if(isCross(h, l)) {
             cPoint.push({
               x: l.x,
@@ -551,14 +546,14 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
           }
         }
         // 检测横线有没有和被删掉的竖线相交的，将其左右缩短
-        for(let j = 1; j < finalHorizontal.length - 1; j++) {
-          let l2 = finalHorizontal[j];
+        for(let j = 1; j < blankHorizontal.length - 1; j++) {
+          let l2 = blankHorizontal[j];
           if(l2.x[0] === l.x) {
-            for(let k = i + 1; k < finalVertical.length - 1; k++) {
-              let l3 = finalVertical[k];
+            for(let k = i + 1; k < blankVertical.length - 1; k++) {
+              let l3 = blankVertical[k];
               if(l3.x > l.x && isCross(l2, l3)) {
                 // 同时尝试将缩掉的这一段线作为相邻边界，合并上下完全相邻的矩形
-                unionSquare(finalSquare, { x: [l2.x[0], l3.x], y: l2.y }, false);
+                unionSquarePair(blankSquare, { x: [l2.x[0], l3.x], y: l2.y }, false);
                 l2.x[0] = l3.x;
                 // 缩掉的线同时忽略本来相交的点
                 let key = l.x + ',' + l2.y;
@@ -571,10 +566,10 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
           }
           else if(l2.x[1] === l.x) {
             for(let k = i - 1; k > 0; k--) {
-              let l3 = finalVertical[k];
+              let l3 = blankVertical[k];
               if(l3.x < l.x && isCross(l2, l3)) {
                 // 同时尝试将缩掉的这一段线作为相邻边界，合并上下完全相邻的矩形
-                unionSquare(finalSquare, { x: [l3.x, l2.x[1]], y: l2.y }, false);
+                unionSquarePair(blankSquare, { x: [l3.x, l2.x[1]], y: l2.y }, false);
                 l2.x[1] = l3.x;
                 let key = l.x + ',' + l2.y;
                 if(pointHash.has(key)) {
@@ -592,32 +587,27 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
             x: l.x,
             y: [cPoint[j].y, cPoint[j + 1].y],
           };
-          unionSquare(finalSquare, l2, true);
+          unionSquarePair(blankSquare, l2, true);
         }
-        finalVertical.splice(i--, 1);
+        blankVertical.splice(i--, 1);
         fin = false;
       }
     }
-    for(let i = 1; i < finalHorizontal.length - 1; i++) {
-      let l = finalHorizontal[i];
-      let pair = getPairGroupSquare(finalSquare, l, true);
+    for(let i = 1; i < blankHorizontal.length - 1; i++) {
+      let l = blankHorizontal[i];
+      let pair = getPairGroupSquare(blankSquare, l, true);
       if(!pair) {
         continue;
       }
-      let a = pair[0].map(item => {
-        return finalSquare[item];
-      });
-      let b = pair[1].map(item => {
-        return finalSquare[item];
-      });
+      let [a, b] = pair;
       let ea = isEmpty(a[0].y1, a[a.length - 1].x4, a[0].y4, a[0].x1, json);
       let eb = isEmpty(b[0].y1, b[b.length - 1].x4, b[0].y4, b[0].x1, json);
       if(ea || eb) {
         // 记录下这条线与其它线的交点
         let cPoint = [];
         let pointHash = new Map();
-        for(let j = 0; j < finalVertical.length; j++) {
-          let v = finalVertical[j];
+        for(let j = 0; j < blankVertical.length; j++) {
+          let v = blankVertical[j];
           if(isCross(l, v)) {
             cPoint.push({
               x: v.x,
@@ -628,14 +618,14 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
           }
         }
         // 检测竖线有没有和被删掉的横线相交的，将其上下缩短
-        for(let j = 1; j < finalVertical.length - 1; j++) {
-          let l2 = finalVertical[j];
+        for(let j = 1; j < blankVertical.length - 1; j++) {
+          let l2 = blankVertical[j];
           if(l2.y[0] === l.y) {
-            for(let k = i + 1; k < finalHorizontal.length - 1; k++) {
-              let l3 = finalHorizontal[k];
+            for(let k = i + 1; k < blankHorizontal.length - 1; k++) {
+              let l3 = blankHorizontal[k];
               if(l3.y > l.y && isCross(l3, l2)) {
                 // 同时尝试将缩掉的这一段线作为相邻边界，合并左右完全相邻的矩形
-                unionSquare(finalSquare, { x: l2.x, y: [l2.y[0], l3.y] }, true);
+                unionSquarePair(blankSquare, { x: l2.x, y: [l2.y[0], l3.y] }, true);
                 l2.y[0] = l3.y;
                 // 缩掉的线同时忽略本来相交的点
                 let key = l2.x + ',' + l.y;
@@ -648,10 +638,10 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
           }
           else if(l2.y[1] === l.y) {
             for(let k = i - 1; k > 0; k--) {
-              let l3 = finalHorizontal[k];
+              let l3 = blankHorizontal[k];
               if(l3.y < l.y && isCross(l3, l2)) {
                 // 同时尝试将缩掉的这一段线作为相邻边界，合并左右完全相邻的矩形
-                unionSquare(finalSquare, { x: l2.x, y: [l3.y, l2.y[1]] }, true);
+                unionSquarePair(blankSquare, { x: l2.x, y: [l3.y, l2.y[1]] }, true);
                 l2.y[1] = l3.y;
                 let key = l2.x + ',' + l.y;
                 if(pointHash.has(key)) {
@@ -669,9 +659,61 @@ function getFinal(unionHorizontal, unionVertical, json, square) {
             x: [cPoint[j].x, cPoint[j + 1].x],
             y: l.y,
           };
-          unionSquare(finalSquare, l2, false);
+          unionSquarePair(blankSquare, l2, false);
         }
+        blankHorizontal.splice(i--, 1);
+        fin = false;
+      }
+    }
+    if(fin) {
+      break;
+    }
+  }
+  while(true);
+  return {
+    blankHorizontal,
+    blankVertical,
+    blankSquare,
+  };
+}
+
+// 以一条线为交界，相邻的一个联合矩形，如果为空，则可以合并
+// 与blank不同的是只需一边即可，而blank需要两边的联合矩形
+function getFinal(blankHorizontal, blankVertical, json, blankSquare) {
+  let finalHorizontal = lodash.cloneDeep(blankHorizontal);
+  let finalVertical = lodash.cloneDeep(blankVertical);
+  let finalSquare = lodash.cloneDeep(blankSquare);
+  do {
+    let fin = true;
+    for(let i = 1; i < finalVertical.length - 1; i++) {
+      let l = finalVertical[i];
+      let group = getGroupSquare(finalSquare, l, false);
+      if(!group) {
+        continue;
+      }
+      if(isEmpty(group[0].y1, group[0].x4, group[group.length - 1].y4, group[0].x1, json)) {
+        for(let j = 1; j < group.length; j++) {
+          group[j].ignore = true;
+        }
+        group[0].y4 = group[group.length - 1].y4;
+        finalVertical.splice(i--, 1);
+        finalSquare = finalSquare.filter(item => !item.ignore);
+        fin = false;
+      }
+    }
+    for(let i = 1; i < finalHorizontal.length - 1; i++) {
+      let l = finalHorizontal[i];
+      let group = getGroupSquare(finalSquare, l, true);
+      if(!group) {
+        continue;
+      }
+      if(isEmpty(group[0].y1, group[group.length - 1].x4, group[0].y4, group[0].x1, json)) {
+        for(let j = 1; j < group.length; j++) {
+          group[j].ignore = true;
+        }
+        group[0].x4 = group[group.length - 1].x4;
         finalHorizontal.splice(i--, 1);
+        finalSquare = finalSquare.filter(item => !item.ignore);
         fin = false;
       }
     }
@@ -810,28 +852,24 @@ function getPairSquare(square, l, hOrV) {
 function getPairGroupSquare(square, l, hOrV) {
   let a = [];
   let b = [];
-  let as = [];
-  let bs = [];
   if(hOrV) {
     for(let i = 0; i < square.length; i++) {
       let item = square[i];
       if(item.y4 === l.y && item.x1 >= l.x[0] && item.x4 <= l.x[1]) {
-        a.push(i);
-        as.push(item);
+        a.push(item);
       }
       else if(item.y1 === l.y && item.x1 >= l.x[0] && item.x4 <= l.x[1]) {
-        b.push(i);
-        bs.push(item);
+        b.push(item);
       }
     }
-    if(as.length && bs.length) {
-      for(let i = 1; i < as.length; i++) {
-        if(as[i].y1 !== as[0].y1) {
+    if(a.length && b.length) {
+      for(let i = 1; i < a.length; i++) {
+        if(a[i].y1 !== a[0].y1) {
           return null;
         }
       }
-      for(let i = 1; i < bs.length; i++) {
-        if(bs[i].y4 !== bs[0].y4) {
+      for(let i = 1; i < b.length; i++) {
+        if(b[i].y4 !== b[0].y4) {
           return null;
         }
       }
@@ -842,22 +880,20 @@ function getPairGroupSquare(square, l, hOrV) {
     for(let i = 0; i < square.length; i++) {
       let item = square[i];
       if(item.x4 === l.x && item.y1 >= l.y[0] && item.y4 <= l.y[1]) {
-        a.push(i);
-        as.push(item);
+        a.push(item);
       }
       else if(item.x1 === l.x && item.y1 >= l.y[0] && item.y4 <= l.y[1]) {
-        b.push(i);
-        bs.push(item);
+        b.push(item);
       }
     }
-    if(as.length && bs.length) {
-      for(let i = 1; i < as.length; i++) {
-        if(as[i].x1 !== as[0].x1) {
+    if(a.length && b.length) {
+      for(let i = 1; i < a.length; i++) {
+        if(a[i].x1 !== a[0].x1) {
           return null;
         }
       }
-      for(let i = 1; i < bs.length; i++) {
-        if(bs[i].x4 !== bs[0].x4) {
+      for(let i = 1; i < b.length; i++) {
+        if(b[i].x4 !== b[0].x4) {
           return null;
         }
       }
@@ -867,7 +903,79 @@ function getPairGroupSquare(square, l, hOrV) {
   return null;
 }
 
-function unionSquare(square, l, hOrV) {
+function getGroupSquare(square, l, hOrV) {
+  let a = [];
+  let b = [];
+  if(hOrV) {
+    for(let i = 0; i < square.length; i++) {
+      let item = square[i];
+      if(item.y4 === l.y && item.x1 >= l.x[0] && item.x4 <= l.x[1]) {
+        a.push(item);
+      }
+      else if(item.y1 === l.y && item.x1 >= l.x[0] && item.x4 <= l.x[1]) {
+        b.push(item);
+      }
+    }
+    if(a.length) {
+      for(let i = 1; i < a.length; i++) {
+        if(a[i].y1 !== a[0].y1) {
+          a = [];
+          break;
+        }
+      }
+    }
+    if(b.length) {
+      for(let i = 1; i < b.length; i++) {
+        if(b[i].y4 !== b[0].y4) {
+          b = [];
+          break;
+        }
+      }
+    }
+    if(a.length) {
+      return a;
+    }
+    if(b.length) {
+      return b;
+    }
+  }
+  else {
+    for(let i = 0; i < square.length; i++) {
+      let item = square[i];
+      if(item.x4 === l.x && item.y1 >= l.y[0] && item.y4 <= l.y[1]) {
+        a.push(item);
+      }
+      else if(item.x1 === l.x && item.y1 >= l.y[0] && item.y4 <= l.y[1]) {
+        b.push(item);
+      }
+    }
+    if(a.length) {
+      for(let i = 1; i < a.length; i++) {
+        if(a[i].x1 !== a[0].x1) {
+          a = [];
+          break;
+        }
+      }
+    }
+    if(b.length) {
+      for(let i = 1; i < b.length; i++) {
+        if(b[i].x4 !== b[0].x4) {
+          b = [];
+          break;
+        }
+      }
+    }
+    if(a.length > 1) {
+      return a;
+    }
+    if(b.length > 1) {
+      return b;
+    }
+  }
+  return null;
+}
+
+function unionSquarePair(square, l, hOrV) {
   if(hOrV) {
     for(let i = 0; i < square.length; i++) {
       let a = square[i];
@@ -919,7 +1027,8 @@ export default function(json) {
   let { extendHorizontal, extendVertical } = getExtend(top, right, bottom, left, originHorizontal, originVertical);
   let { mergeHorizontal, mergeVertical, point } = getMerge(extendHorizontal, extendVertical);
   let { unionHorizontal, unionVertical, unionPoint, square } = getUnion(mergeHorizontal, mergeVertical, available, point);
-  let { finalHorizontal, finalVertical, finalSquare } = getFinal(unionHorizontal, unionVertical, available, square);
+  let { blankHorizontal, blankVertical, blankSquare } = getUnBlank(unionHorizontal, unionVertical, available, square);
+  let { finalHorizontal, finalVertical, finalSquare } = getFinal(blankHorizontal, blankVertical, available, blankSquare);
   return {
     originHorizontal,
     originVertical,
@@ -932,6 +1041,9 @@ export default function(json) {
     unionVertical,
     unionPoint,
     square,
+    blankHorizontal,
+    blankVertical,
+    blankSquare,
     finalHorizontal,
     finalVertical,
     finalSquare,

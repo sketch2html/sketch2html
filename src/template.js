@@ -438,6 +438,22 @@ body{
   }).join('\n')}
 </ul>
 <ul id="preview">
+  ${data.item.blankHorizontal.map(data => {
+    return `<li class="h" style="left:${data.x[0]}px;top:${data.y}px;width:${data.x[1] - data.x[0]}px"
+      title="${data.x[0]}:${data.x[1]}|${data.y}" alt="${data.st}|${data.i}"></li>`;
+  }).join('\n')}
+  ${data.item.blankVertical.map(data => {
+    return `<li class="v" style="left:${data.x}px;top:${data.y[0]}px;height:${data.y[1] - data.y[0]}px"
+      title="${data.x}|${data.y[0]}:${data.y[1]}" alt="${data.st}|${data.i}"></li>`;
+  }).join('\n')}
+  ${data.item.available.map(data => {
+    return `<li class="c" style="left:${data.xc}px;top:${data.yc}px"></li>`;
+  }).join('\n')}
+  ${data.item.blankSquare.map(data => {
+    return `<li class="s" style="left:${data.x1}px;top:${data.y1}px;width:${data.x4 - data.x1}px;height:${data.y4 - data.y1}px"></li>`;
+  }).join('\n')}
+</ul>
+<ul id="preview">
   ${data.item.finalHorizontal.map(data => {
     return `<li class="h" style="left:${data.x[0]}px;top:${data.y}px;width:${data.x[1] - data.x[0]}px"
       title="${data.x[0]}:${data.x[1]}|${data.y}" alt="${data.st}|${data.i}"></li>`;
@@ -450,7 +466,7 @@ body{
     return `<li class="c" style="left:${data.xc}px;top:${data.yc}px"></li>`;
   }).join('\n')}
   ${data.item.finalSquare.map(data => {
-    return `<li class="s" style="left:${data.x1}px;top:${data.y1}px;width:${data.x4 - data.x1}px;height:${data.y4 - data.y1}px"></li>`;
+      return `<li class="s" style="left:${data.x1}px;top:${data.y1}px;width:${data.x4 - data.x1}px;height:${data.y4 - data.y1}px"></li>`;
   }).join('\n')}
 </ul>
 </body>
