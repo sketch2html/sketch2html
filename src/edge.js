@@ -687,18 +687,30 @@ function getFinal(blankHorizontal, blankVertical, json, blankSquare) {
     let fin = true;
     for(let i = 1; i < finalVertical.length - 1; i++) {
       let l = finalVertical[i];
-      let res = getGroupSquare(finalSquare, l, false);
-      if(!res) {
+      let group = getGroupSquare(finalSquare, l, false);
+      if(!group) {
         continue;
       }
-      let { direction, group } = res;
-      if(isEmpty(group[0].y1, group[0].x4, group[group.length - 1].y4, group[0].x1, json)) {
-        for(let j = 0; j < group.length; j++) {
-          let item = group[j];
+      let [a, b] = group;
+      if(a.length && isEmpty(a[0].y1, a[0].x4, a[a.length - 1].y4, a[0].x1, json)) {
+        for(let j = 0; j < a.length; j++) {
+          let item = a[j];
           item.ignore = true;
-          let a = getPair(item, finalSquare, false, direction);
-          a.x1 = Math.min(a.x1, item.x1);
-          a.x4 = Math.max(a.x4, item.x4);
+          let p = getPair(item, finalSquare, false, true);
+          p.x1 = Math.min(p.x1, item.x1);
+          p.x4 = Math.max(p.x4, item.x4);
+        }
+        finalVertical.splice(i--, 1);
+        finalSquare = finalSquare.filter(item => !item.ignore);
+        fin = false;
+      }
+      else if(b.length && isEmpty(b[0].y1, b[0].x4, b[b.length - 1].y4, b[0].x1, json)) {
+        for(let j = 0; j < b.length; j++) {
+          let item = b[j];
+          item.ignore = true;
+          let p = getPair(item, finalSquare, false, false);
+          p.x1 = Math.min(p.x1, item.x1);
+          p.x4 = Math.max(p.x4, item.x4);
         }
         finalVertical.splice(i--, 1);
         finalSquare = finalSquare.filter(item => !item.ignore);
@@ -707,18 +719,30 @@ function getFinal(blankHorizontal, blankVertical, json, blankSquare) {
     }
     for(let i = 1; i < finalHorizontal.length - 1; i++) {
       let l = finalHorizontal[i];
-      let res = getGroupSquare(finalSquare, l, true);
-      if(!res) {
+      let group = getGroupSquare(finalSquare, l, true);
+      if(!group) {
         continue;
       }
-      let { direction, group } = res;
-      if(isEmpty(group[0].y1, group[group.length - 1].x4, group[0].y4, group[0].x1, json)) {
-        for(let j = 0; j < group.length; j++) {
-          let item = group[j];
+      let [a, b] = group;
+      if(a.length && isEmpty(a[0].y1, a[a.length - 1].x4, a[0].y4, a[0].x1, json)) {
+        for(let j = 0; j < a.length; j++) {
+          let item = a[j];
           item.ignore = true;
-          let a = getPair(item, finalSquare, true, direction);
-          a.y1 = Math.min(a.y1, item.y1);
-          a.y4 = Math.max(a.y4, item.y4);
+          let p = getPair(item, finalSquare, true, true);
+          p.y1 = Math.min(p.y1, item.y1);
+          p.y4 = Math.max(p.y4, item.y4);
+        }
+        finalHorizontal.splice(i--, 1);
+        finalSquare = finalSquare.filter(item => !item.ignore);
+        fin = false;
+      }
+      else if(b.length && isEmpty(b[0].y1, b[b.length - 1].x4, b[0].y4, b[0].x1, json)) {
+        for(let j = 0; j < b.length; j++) {
+          let item = b[j];
+          item.ignore = true;
+          let p = getPair(item, finalSquare, true, false);
+          p.y1 = Math.min(p.y1, item.y1);
+          p.y4 = Math.max(p.y4, item.y4);
         }
         finalHorizontal.splice(i--, 1);
         finalSquare = finalSquare.filter(item => !item.ignore);
@@ -940,17 +964,8 @@ function getGroupSquare(square, l, hOrV) {
         }
       }
     }
-    if(a.length) {
-      return {
-        direction: true,
-        group: a,
-      };
-    }
-    if(b.length) {
-      return {
-        direction: false,
-        group: b,
-      };
+    if(a.length || b.length) {
+      return [a, b];
     }
   }
   else {
@@ -979,17 +994,8 @@ function getGroupSquare(square, l, hOrV) {
         }
       }
     }
-    if(a.length) {
-      return {
-        direction: true,
-        group: a,
-      };
-    }
-    if(b.length) {
-      return {
-        direction: false,
-        group: b,
-      };
+    if(a.length || b.length) {
+      return [a, b];
     }
   }
   return null;
