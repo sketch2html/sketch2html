@@ -687,15 +687,19 @@ function getFinal(blankHorizontal, blankVertical, json, blankSquare) {
     let fin = true;
     for(let i = 1; i < finalVertical.length - 1; i++) {
       let l = finalVertical[i];
-      let group = getGroupSquare(finalSquare, l, false);
-      if(!group) {
+      let res = getGroupSquare(finalSquare, l, false);
+      if(!res) {
         continue;
       }
+      let { direction, group } = res;
       if(isEmpty(group[0].y1, group[0].x4, group[group.length - 1].y4, group[0].x1, json)) {
-        for(let j = 1; j < group.length; j++) {
-          group[j].ignore = true;
+        for(let j = 0; j < group.length; j++) {
+          let item = group[j];
+          item.ignore = true;
+          let a = getPair(item, finalSquare, false, direction);
+          a.x1 = Math.min(a.x1, item.x1);
+          a.x4 = Math.max(a.x4, item.x4);
         }
-        group[0].y4 = group[group.length - 1].y4;
         finalVertical.splice(i--, 1);
         finalSquare = finalSquare.filter(item => !item.ignore);
         fin = false;
@@ -703,15 +707,19 @@ function getFinal(blankHorizontal, blankVertical, json, blankSquare) {
     }
     for(let i = 1; i < finalHorizontal.length - 1; i++) {
       let l = finalHorizontal[i];
-      let group = getGroupSquare(finalSquare, l, true);
-      if(!group) {
+      let res = getGroupSquare(finalSquare, l, true);
+      if(!res) {
         continue;
       }
+      let { direction, group } = res;
       if(isEmpty(group[0].y1, group[group.length - 1].x4, group[0].y4, group[0].x1, json)) {
-        for(let j = 1; j < group.length; j++) {
-          group[j].ignore = true;
+        for(let j = 0; j < group.length; j++) {
+          let item = group[j];
+          item.ignore = true;
+          let a = getPair(item, finalSquare, true, direction);
+          a.y1 = Math.min(a.y1, item.y1);
+          a.y4 = Math.max(a.y4, item.y4);
         }
-        group[0].x4 = group[group.length - 1].x4;
         finalHorizontal.splice(i--, 1);
         finalSquare = finalSquare.filter(item => !item.ignore);
         fin = false;
@@ -933,10 +941,16 @@ function getGroupSquare(square, l, hOrV) {
       }
     }
     if(a.length) {
-      return a;
+      return {
+        direction: true,
+        group: a,
+      };
     }
     if(b.length) {
-      return b;
+      return {
+        direction: false,
+        group: b,
+      };
     }
   }
   else {
@@ -965,11 +979,17 @@ function getGroupSquare(square, l, hOrV) {
         }
       }
     }
-    if(a.length > 1) {
-      return a;
+    if(a.length) {
+      return {
+        direction: true,
+        group: a,
+      };
     }
-    if(b.length > 1) {
-      return b;
+    if(b.length) {
+      return {
+        direction: false,
+        group: b,
+      };
     }
   }
   return null;
@@ -1018,6 +1038,44 @@ function unionSquarePair(square, l, hOrV) {
       }
     }
   }
+}
+
+function getPair(item, square, hOrV, direction) {
+  if(hOrV) {
+    for(let i = 0; i < square.length; i++) {
+      let o = square[i];
+      if(o !== item && o.x1 === item.x1 && o.x4 === item.x4) {
+        if(direction) {
+          if(o.y1 === item.y4) {
+            return o;
+          }
+        }
+        else {
+          if(o.y4 === item.y1) {
+            return o;
+          }
+        }
+      }
+    }
+  }
+  else {
+    for(let i = 0; i < square.length; i++) {
+      let o = square[i];
+      if(o !== item && o.y1 === item.y1 && o.y4 === item.y4) {
+        if(direction) {
+          if(o.x1 === item.x4) {
+            return o;
+          }
+        }
+        else {
+          if(o.x4 === item.x1) {
+            return o;
+          }
+        }
+      }
+    }
+  }
+  return null;
 }
 
 export default function(json) {
