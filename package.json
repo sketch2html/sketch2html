@@ -28,7 +28,7 @@
     "skpm": "^1.1.10"
   },
   "devDependencies": {
-    "@skpm/builder": "^0.5.12",
+    "@skpm/builder": "^0.5.13",
     "blanket": "^1.2.3",
     "coveralls": "^3.0.2",
     "expect.js": "^0.3.1",

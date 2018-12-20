@@ -135,10 +135,10 @@ class ScLayer {
     this._zs = v;
   }
   get width() {
-    return Math.round(this.layer.frame.width);
+    return this.layer.frame.width;
   }
   get height() {
-    return Math.round(this.layer.frame.height);
+    return this.layer.frame.height;
   }
 
   addOverlay(v) {
@@ -276,6 +276,12 @@ class ScLayer {
           color: item.color,
         };
       });
+      if(this.width <= 2 && this.height > 5) {
+        this.isBorder = true;
+      }
+      else if(this.width > 5 && this.height <= 2) {
+        this.isBorder = true;
+      }
     }
     this._json = {
       id: this.id,
@@ -319,12 +325,6 @@ class ScLayer {
   }
   toString() {
     return JSON.stringify(this.toJSON());
-  }
-
-  output(path) {
-    if(!this.isMeta) {
-      //
-    }
   }
 
   static getInstance(layer, level, top) {
