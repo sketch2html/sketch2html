@@ -360,16 +360,14 @@ export function htmls(noAlert) {
       fileManager.createDirectoryAtPath_withIntermediateDirectories_attributes_error(NSString.stringWithString(directory), true, null, null);
     }
     let document = Document.getSelectedDocument();
-    item.list.forEach(data => {
-      if([type.SHAPE_PATH, type.SHAPE, type.IMAGE].indexOf(data.type) > -1) {
-        let layer = document.getLayerWithID(data.id);
-        expt(layer, {
-          output: `${directory}`,
-          'use-id-for-name': true,
-          overwriting: true,
-          'save-for-web': true,
-        });
-      }
+    item.images.forEach(data => {
+      let layer = document.getLayerWithID(data.id);
+      expt(layer, {
+        output: `${directory}`,
+        'use-id-for-name': true,
+        overwriting: true,
+        'save-for-web': true,
+      });
     });
     let dir = `${directory}/index.html`;
     message.push(dir);

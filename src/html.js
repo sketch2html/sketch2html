@@ -20,6 +20,11 @@ function group(json, option) {
   let style = [];
   if(option.list && flex) {
     style.push(`flex:${flex}`);
+    style.push(`align-items:center`);
+  }
+  if(direction === 1) {
+    style.push(`display:flex`);
+    style.push(`align-items:center`);
   }
   let margin = [0, 0, 0, 0];
   if(option.parentPadding) {}
@@ -60,6 +65,7 @@ function group(json, option) {
   }
   let c = children.map((item, i) => {
     let opt = {
+      parentDirection: direction,
       parentRect: rect,
       parentPadding: padding,
       prevRect: i ? children[i - 1].rect : null,
@@ -131,15 +137,24 @@ function element(json, option) {
   switch(json.type) {
     case type.TEXT:
       return text(json, option);
+    case type.IMAGE:
+    case type.SHAPE:
     case type.SHAPE_PATH:
       return shape(json, option);
+    case type.GROUP:
+      if(json.isImage) {
+        return shape(json, option);
+      }
   }
 }
 
 function text(json, option) {
-  let { direction, rect, bg } = json;
+  let { rect, bg } = json;
   let { parentRect, parentPadding } = option;
   let style = [];
+  if(json.flex) {
+    style.push(`flex:${json.flex}`);
+  }
   let margin = [0, 0, 0, 0];
   let padding = [0, 0, 0, 0];
   if(option.prevRect) {
@@ -174,7 +189,7 @@ function text(json, option) {
     else if(marginRight <= 2 && marginLeft > 10) {
       style.push(`text-align:right`);
     }
-  }
+  } console.log(json.color, render.rgba(json.color))
   style.push(`margin:${render.joinMarginOrPadding(margin)}`);
   style.push(`color:${render.rgba(json.color)};`
     + `font-family:${json.fontFamily};`
@@ -184,8 +199,12 @@ function text(json, option) {
 }
 
 function shape(json, option) {
-  let { direction, rect } = json;
+  let { rect } = json;
   let { parentRect, parentPadding } = option;
+  let style = [];
+  if(json.flex) {
+    style.push(`flex:${json.flex}`);
+  }
   let margin = [0, 0, 0, 0];
   if(option.prevRect) {
     margin[0] = rect[0] - option.prevRect[2];
@@ -195,20 +214,40 @@ function shape(json, option) {
   if(marginLeft > 2 && marginRight > 2 && Math.abs(marginLeft - marginRight) / (marginLeft + marginRight) < 0.2) {
     margin[1] = margin[3] = 'auto';
   }
-  let style = `display:block;`
-    + `margin:${render.joinMarginOrPadding(margin)};`
-    + `width:${json.width}px;`
-    + `height:${json.height}px;`
-    + `background:url(${json.id}.png) no-repeat center;`
-    + `background-size:contain`;
-  return `<b style="${style}"></b>`;
+  style.push(`margin:${render.joinMarginOrPadding(margin)}`);
+  style.push(`display:block`);
+  style.push(`width:${json.width}px`);
+  style.push(`height:${json.height}px`);
+  style.push(`background:url(${json.id}.png) no-repeat center`);
+  style.push(`background-size:contain`);
+  return `<b style="${style.join(';')}"></b>`;
+}
+
+// 获取需要被导出为图片的group
+function exportImages(layout, list) {
+  if(!layout) {
+    return;
+  }
+  if(layout.flag === flag.ELEMENT) {
+    if(layout.isImage) {
+      list.push(layout);
+    }
+  }
+  else {
+    layout.children.forEach(item => {
+      exportImages(item, list);
+    });
+  }
 }
 
 export default function(json) {
   let { list, layout } = json;
+  let images = [];
+  exportImages(layout, images);
   let html = recursion(layout, {});
   return {
     html,
     list,
+    images,
   };
 }

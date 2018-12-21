@@ -38,7 +38,7 @@ export default function(json) {
     zHash.set(item.id, i);
     lHash.set(item.id, item);
   });
-  // 和文字重合且在下方的一定是背景图
+  // 和文字或图像重合且在下方的一定是背景图
   list.forEach((item, i) => {
     if(item.overlay.length && (item.isImage || item.isMeta)) {
       let num = 0;
@@ -53,18 +53,18 @@ export default function(json) {
     }
   });
   // 重合的图像图层，取下方的作为布局，上方的为前景图
-  list.forEach((item, i) => {
-    if(item.overlay.length && (item.isImage || item.isMeta) && !item.isBackground && item.type !== type.TEXT) {
-      let num = 0;
-      item.overlay.forEach(id => {
-        let z = zHash.get(id);
-        let o = lHash.get(id);
-        if(!o.isBackground && z < i) {
-          num++;
-        }
-      });
-      item.isForeground = num > 0;
-    }
-  });
+  // list.forEach((item, i) => {
+  //   if(item.overlay.length && (item.isImage || item.isMeta) && !item.isBackground && item.type !== type.TEXT) {
+  //     let num = 0;
+  //     item.overlay.forEach(id => {
+  //       let z = zHash.get(id);
+  //       let o = lHash.get(id);
+  //       if(!o.isBackground && z < i) {
+  //         num++;
+  //       }
+  //     });
+  //     item.isForeground = num > 0;
+  //   }
+  // });
   return json;
 }
