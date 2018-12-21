@@ -257,6 +257,14 @@ class ScLayer {
       color = sketchObject.textColor();
       color = `rgba(${color.red()*100}%,${color.green()*100}%,${color.blue()*100}%,${color.alpha()*100}%)`;
       fontFamily = sketchObject.fontPostscriptName() + '';
+      // 文字有可能fill覆盖了原本颜色
+      let fills = this.layer.style.fills;
+      fills = fills.filter(item => {
+        return item.fill === 'Color' && item.enabled;
+      });
+      if(fills.length === 1) {
+        color = fills[0].color;
+      }
     }
     else if([type.SHAPE_PATH, type.SHAPE].indexOf(this.type) > -1) {
       let fills = this.layer.style.fills;
