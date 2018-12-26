@@ -189,7 +189,7 @@ function text(json, option) {
     else if(marginRight <= 2 && marginLeft > 10) {
       style.push(`text-align:right`);
     }
-  } console.log(json.color, render.rgba(json.color))
+  }
   style.push(`margin:${render.joinMarginOrPadding(margin)}`);
   style.push(`color:${render.rgba(json.color)};`
     + `font-family:${json.fontFamily};`
