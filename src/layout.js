@@ -55,7 +55,7 @@ function getHorizontalByVertical(h, v) {}
 function recursion(json) {
   let { finalHorizontal, finalVertical } = json;
   let rowNum = finalHorizontal.length - 1;
-  let colNum = finalVertical.length - 1; console.log(0, rowNum, colNum)
+  let colNum = finalVertical.length - 1;
   // 单格、单行列及多行区分处理
   if(rowNum === 1 && colNum === 1) {
     return single(json);
@@ -169,7 +169,7 @@ function multi(json) {
       }
       absV.push(i);
     }
-  } console.log(1, absH.length, absV.length);
+  }
   // 横线独立，可分割为多行
   if(absH.length) {
     let index = [];
@@ -179,14 +179,14 @@ function multi(json) {
       index.push([last, item]);
       last = item;
     }
-    index.push([last, rowNum]); console.log(2, index);
+    index.push([last, rowNum]);
     // 分别组装独立的分割区域的横竖线，并递归分析
     let children = index.map(item => {
       let h = [];
       for(let i = item[0]; i <= item[1]; i++) {
         h.push(finalHorizontal[i]);
       }
-      let v = getVerticalByHorizontal(h, finalVertical); console.log(3, item);
+      let v = getVerticalByHorizontal(h, finalVertical);
       return recursion({
         list,
         finalHorizontal: h,
@@ -214,7 +214,7 @@ function multi(json) {
       vMap.set(item.y[1], true);
       vs.push(item.y[1]);
     }
-  } console.log(4, vs.length)
+  }
   // 超过2个端点说明不等长
   if(vs.length > 2) {
     // 获取所有端点上的横线，且过滤掉不是满长的横线的端点
@@ -272,7 +272,7 @@ function multi(json) {
       hMap.set(item.x[1], true);
       hs.push(item.x[1]);
     }
-  } console.log(5, vs.length)
+  }
   // TODO: 超过2个端点说明不等长
   if(hs.length > 2) {}
   // 前置均没有说明此时是均匀矩阵多格，
@@ -280,7 +280,7 @@ function multi(json) {
 }
 
 function grid(json, rowNum, colNum) {
-  let { list, finalHorizontal, finalVertical } = json; console.log(6, rowNum, colNum)
+  let { list, finalHorizontal, finalVertical } = json;
   // 行列顺序组成数组
   let square = [];
   for(let i = 1; i <= rowNum; i++) {
@@ -343,7 +343,7 @@ function grid(json, rowNum, colNum) {
       finalVertical.splice(item, 1);
     }
     colNum -= emptyCol.length;
-  } console.log(7, fullCol.length, colNum)
+  }
   // 完整的矩阵
   if(fullCol.length === colNum) {
     if(rowNum === 1) {
@@ -760,7 +760,6 @@ function flexGroup(json) {
         let n = tryGroup(list, i);
         if(n >= 0.5) {
           let len = list.length * i;
-          console.log(j, len);
           let newChildren = [];
           if(i === 1) {
             newChildren = list.map(item => {
@@ -926,37 +925,73 @@ function flexRatio(json) {
         item.flex = 0;
       });
     }
-    // 横向可以先忽略固定大小的图像，剩余的text判断比例，TODO: 递归复合情况
+    // 横向可以先忽略固定大小的图像，剩余的text判断比例
     else {
-      let unFixed = [];
+      // let unFixed = [];
+      let fixed = [];
+      let widths = [];
       children.forEach(item => {
-        if(item.isImage) {
-          item.flex = 0;
+        widths.push(item.rect[1] - item.rect[3]);
+        fixed.push(isWidthFixed(item));
+      });
+      let flexes = [];
+      let indexes = [];
+      fixed.forEach((item, i) => {
+        if(item) {
+          children[i].flex = 0;
         }
         else {
-          unFixed.push(item);
+          flexes.push(widths[i]);
+          indexes.push(i);
         }
       });
-      if(unFixed.length === 1) {
-        unFixed[0].flex = 1;
+      // 弹性宽度计算比值，只有1个时直接为1
+      if(flexes.length === 1) {
+        children[indexes[0]].flex = 1;
       }
-      else if(unFixed.length > 1) {
-        let width = unFixed.map(item => {
-          if(item.flag === flag.ELEMENT) {
-            return item.width;
-          }
-          else {
-            return item.rect[1] - item.rect[3];
-          }
-        });
+      else if(flexes.length > 1) {
+        // 多个计算标准差
         let sum = 0;
-        width.forEach(item => {
+        flexes.forEach(item => {
           sum += item;
         });
-        unFixed[0].flex = 1;
-        unFixed[1].flex = 0;
+        let average = sum / flexes.length;
+        let variance = 0;
+        flexes.forEach(item => {
+          variance += Math.pow(item - average, 2);
+        });
+        variance /= flexes.length;
+        let sd = Math.sqrt(variance);
+        // 均分
+        if(sd < average * 0.15) {
+          indexes.forEach(i => {
+            children[i].flex = 1;
+          });
+        }
+        else {
+          // TODO: 非均分情况，聚类成组后计算比例
+        }
       }
     }
+  }
+}
+
+// flex子元素判断是否是固定宽大的，如图片
+function isWidthFixed(json) {
+  if(!json) {
+    return true;
+  }
+  if(json.flag === flag.ELEMENT) {
+    return json.isImage;
+  }
+  else {
+    let fixed = true;
+    json.children.forEach(item => {
+      if(!isWidthFixed(item)) {
+        fixed = false;
+      }
+    });
+    return fixed;
   }
 }
 
