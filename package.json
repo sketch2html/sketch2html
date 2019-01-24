@@ -22,7 +22,7 @@
     "logs": "skpm log -f"
   },
   "dependencies": {
-    "@tensorflow/tfjs": "^0.14.1",
+    "@tensorflow/tfjs": "^0.14.2",
     "jszip": "^3.1.5",
     "lodash": "^4.17.11",
     "skpm": "^1.1.11"
